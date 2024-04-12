@@ -1,3 +1,4 @@
+import 'package:f_dsa/widgets/cell.dart';
 import 'package:flutter/material.dart';
 
 import 'models/board.dart';
@@ -15,35 +16,200 @@ class _GameState extends State<Game> {
   bool play = false;
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          buildPanel(),
+          ..._buildMatrix(),
+        ],
+      ),
+    );
+  }
+
+  Expanded buildCol1() {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            const Text('Legend'),
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Cell(
+                        node: Node(row: 0, col: 0, id: '10,20', isWall: true),
+                      ),
+                      const SizedBox(width: 10),
+                      const Text('Wall'),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Cell(
+                        node: Node(row: 0, col: 0, id: '10,20', isPath: true),
+                      ),
+                      const SizedBox(width: 10),
+                      const Text('Path'),
+                    ],
+                  ),
+                )
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Cell(
+                        node: Node(row: 0, col: 0, id: '10,20', isStart: true),
+                      ),
+                      const SizedBox(width: 10),
+                      const Text('Start'),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Cell(
+                        node:
+                            Node(row: 0, col: 0, id: '10,20', isEndNode: true),
+                      ),
+                      const SizedBox(width: 10),
+                      const Text('End'),
+                    ],
+                  ),
+                )
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Cell(
+                        node: Node(row: 0, col: 0, id: '10,20'),
+                      ),
+                      const SizedBox(width: 10),
+                      const Text('Unvisited'),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Expanded(
+                    child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Container(height: 30, width: 30, color: Colors.blue[900]),
+                    const SizedBox(width: 5),
+                    Cell(
+                      node: Node(row: 0, col: 0, id: '10,20', isVisited: true),
+                    ),
+                    const SizedBox(width: 10),
+                    const Text('Visited'),
+                  ],
+                ))
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Expanded buildCol2() {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                board.generateWalls();
+              },
+              child: const Text('Generate Walls'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                board.reset();
+                board.updateCallback();
+              },
+              child: const Text('Reset'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                board.randomize();
+                board.updateCallback();
+              },
+              child: const Text('Randomize'),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Row buildPanel() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        ElevatedButton(
-          onPressed: () {
-            board.searchBFS();
-          },
-          child: const Text('Search'),
+        buildCol1(),
+        buildCol2(),
+        const Expanded(
+          child: Column(
+            children: [Text('Col 3')],
+          ),
         ),
-        ElevatedButton(
-          onPressed: () {
-            board.generateWalls();
-          },
-          child: const Text('Generate Walls'),
+        Expanded(
+          child: Column(
+            children: [
+              ElevatedButton(
+                style: const ButtonStyle(
+                  foregroundColor: MaterialStatePropertyAll(Colors.white),
+                  backgroundColor: MaterialStatePropertyAll(Colors.green),
+                ),
+                onPressed: () {
+                  board.searchBFS();
+                },
+                child: const Text('Search'),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                style: const ButtonStyle(
+                  foregroundColor: MaterialStatePropertyAll(Colors.white),
+                  backgroundColor: MaterialStatePropertyAll(Colors.red),
+                ),
+                onPressed: () {
+                  board.reset();
+                  board.updateCallback();
+                },
+                child: const Text('Clear'),
+              ),
+            ],
+          ),
         ),
-        ElevatedButton(
-          onPressed: () {
-            board.reset();
-            board.updateCallback();
-          },
-          child: const Text('Reset'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            board.randomize();
-            board.updateCallback();
-          },
-          child: const Text('Randomize'),
-        ),
-        ..._buildMatrix(),
       ],
     );
   }
@@ -70,23 +236,7 @@ class _GameState extends State<Game> {
           node.toggle();
         });
       },
-      child: AnimatedContainer(
-        margin: const EdgeInsets.all(1),
-        width: 40,
-        height: 40,
-        curve: Curves.fastOutSlowIn,
-        decoration: BoxDecoration(
-          borderRadius: node.radius,
-          color: node.color,
-        ),
-        duration: const Duration(milliseconds: 500),
-        child: Center(
-          child: Text(
-            node.path ? '${node.step == 1 ? '' : node.step - 1}' : '',
-            style: TextStyle(color: node.path ? Colors.white : null),
-          ),
-        ),
-      ),
+      child: Cell(node: node),
     );
   }
 
@@ -94,6 +244,7 @@ class _GameState extends State<Game> {
     return List.generate(
       board.board.length,
       (row) => Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: List.generate(
           board.board[row].length,
           (col) => _buildCell(row, col),

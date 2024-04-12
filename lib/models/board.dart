@@ -153,12 +153,13 @@ class Board {
         }
         updateCallback();
         if (!cur.start && !cur.isEnd) {
-          cur.visited = true;
+          // cur.visited = true;
+          cur.setVisited(true);
         }
         await Future.delayed(delay);
 
-        int r = cur.row;
-        int c = cur.col;
+        int r = cur.row!;
+        int c = cur.col!;
         List<List> neighbors = [
           [r - 1, c],
           [r + 1, c],

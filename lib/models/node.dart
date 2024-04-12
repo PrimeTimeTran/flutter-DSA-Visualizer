@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../constants.dart';
 
-class Node {
-  int row;
-  int col;
-  int step = 0;
+class Node extends ChangeNotifier {
+  int? row;
+  int? col;
+  int step = 1;
   final String id;
   bool inRoute = false;
   bool checked = false;
@@ -19,11 +19,20 @@ class Node {
     required this.id,
     required this.row,
     required this.col,
+    bool? isStart,
+    bool? isEndNode,
+    bool? isWall,
+    bool? isVisited,
+    bool? isPath,
   }) {
     isEnd = id == END_NODE;
     start = id == START_NODE;
+    start = isStart ?? (id == START_NODE);
+    isEnd = isEndNode ?? (id == END_NODE);
+    wall = isWall ?? false;
+    visited = isVisited ?? false;
+    path = isPath ?? false;
   }
-
   get color {
     if (start) {
       return Colors.green;
@@ -32,16 +41,16 @@ class Node {
       return Colors.red;
     }
     if (wall) {
-      return Colors.brown[700];
+      return Colors.black87;
     }
     if (path) {
-      return Colors.purple;
+      return Colors.yellow;
     }
     if (visited) {
       return Colors.grey;
     }
 
-    return Colors.blue;
+    return Colors.lightBlue[50];
   }
 
   get radius {
@@ -49,6 +58,13 @@ class Node {
       return BorderRadius.circular(50);
     }
     return BorderRadius.circular(10);
+  }
+
+  void setVisited(bool value) {
+    if (visited != value) {
+      visited = value;
+      notifyListeners(); // Notify listeners when visited changes
+    }
   }
 
   toggle() {
