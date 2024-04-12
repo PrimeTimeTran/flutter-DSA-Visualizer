@@ -31,7 +31,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  bool _stop = false;
 
   @override
   Widget build(BuildContext context) {
@@ -40,13 +40,22 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: const Game(),
+      body: Column(
+        children: [
+          Game(play: _stop),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _toggle,
+        tooltip: 'Play/Pause',
+        child: const Icon(Icons.add),
+      ),
     );
   }
 
-  void _incrementCounter() {
+  void _toggle() {
     setState(() {
-      _counter++;
+      _stop = !_stop;
     });
   }
 }

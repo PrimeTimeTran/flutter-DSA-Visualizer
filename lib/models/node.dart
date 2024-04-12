@@ -9,6 +9,8 @@ class Node {
   bool inRoute = false;
   bool checked = false;
   bool visited = false;
+  bool path = false;
+  bool wall = false;
   late bool end;
   late bool start;
 
@@ -22,14 +24,20 @@ class Node {
   }
 
   get color {
-    if (visited) {
-      return Colors.grey;
-    }
     if (start) {
       return Colors.green;
     }
     if (end) {
       return Colors.red;
+    }
+    if (wall) {
+      return Colors.black;
+    }
+    if (path) {
+      return Colors.amber;
+    }
+    if (visited) {
+      return Colors.grey;
     }
 
     return Colors.blue;
