@@ -41,10 +41,10 @@ class _GameState extends State<Game> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Cell(
-                        node: Node(row: 0, col: 0, id: '10,20', isWall: true),
+                        node: Node(row: 0, col: 0, id: '10,20', isStart: true),
                       ),
                       const SizedBox(width: 10),
-                      const Text('Wall'),
+                      const Text('Start'),
                     ],
                   ),
                 ),
@@ -73,10 +73,11 @@ class _GameState extends State<Game> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Cell(
-                        node: Node(row: 0, col: 0, id: '10,20', isStart: true),
+                        node:
+                            Node(row: 0, col: 0, id: '10,20', isEndNode: true),
                       ),
                       const SizedBox(width: 10),
-                      const Text('Start'),
+                      const Text('End'),
                     ],
                   ),
                 ),
@@ -89,10 +90,10 @@ class _GameState extends State<Game> {
                     children: [
                       Cell(
                         node:
-                            Node(row: 0, col: 0, id: '10,20', isEndNode: true),
+                            Node(row: 0, col: 0, id: '10,20', isVisited: false),
                       ),
                       const SizedBox(width: 10),
-                      const Text('End'),
+                      const Text('Unvisited'),
                     ],
                   ),
                 )
@@ -106,10 +107,10 @@ class _GameState extends State<Game> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Cell(
-                        node: Node(row: 0, col: 0, id: '10,20'),
+                        node: Node(row: 0, col: 0, id: '10,20', isWall: true),
                       ),
                       const SizedBox(width: 10),
-                      const Text('Unvisited'),
+                      const Text('Wall'),
                     ],
                   ),
                 ),

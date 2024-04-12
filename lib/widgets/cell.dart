@@ -56,7 +56,7 @@ class _CellState extends State<Cell> with SingleTickerProviderStateMixin {
     if (widget.node.visited) {
       _controller.reset();
       _controller.forward();
-      setState(() {}); // Trigger widget rebuild
+      setState(() {});
     }
   }
 }
