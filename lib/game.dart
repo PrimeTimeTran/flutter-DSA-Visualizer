@@ -17,7 +17,6 @@ class _GameState extends State<Game> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ..._buildMatrix(),
         ElevatedButton(
           onPressed: () {
             board.searchBFS();
@@ -44,6 +43,7 @@ class _GameState extends State<Game> {
           },
           child: const Text('Randomize'),
         ),
+        ..._buildMatrix(),
       ],
     );
   }
@@ -70,12 +70,22 @@ class _GameState extends State<Game> {
           node.toggle();
         });
       },
-      child: Container(
+      child: AnimatedContainer(
         margin: const EdgeInsets.all(1),
         width: 40,
         height: 40,
-        color: node.color,
-        child: Center(child: Text(node.id)),
+        curve: Curves.fastOutSlowIn,
+        decoration: BoxDecoration(
+          borderRadius: node.radius,
+          color: node.color,
+        ),
+        duration: const Duration(milliseconds: 500),
+        child: Center(
+          child: Text(
+            node.path ? '${node.step == 1 ? '' : node.step - 1}' : '',
+            style: TextStyle(color: node.path ? Colors.white : null),
+          ),
+        ),
       ),
     );
   }

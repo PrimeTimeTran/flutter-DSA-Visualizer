@@ -13,6 +13,7 @@ class Board {
   late String endId = END_NODE;
   late String startId = START_NODE;
   late UpdateCallback updateCallback;
+  bool pathFound = false;
 
   late List<List> board;
   Board() {
@@ -45,9 +46,44 @@ class Board {
   }
 
   generateWalls() {
-    List count = sample(ROWS, 5);
-    for (var element in count) {
-      board[element][0].wall = true;
+    List rows = sample(ROWS, 5);
+    List cols = sample(COLS, 5);
+    var lists = zipLists(rows, cols);
+    for (var [r, c] in lists) {
+      board[r][c].wall = true;
+      if (inBounds(r + 2, c)) {
+        board[r + 2][c].wall = true;
+      }
+      if (inBounds(r + 1, c)) {
+        board[r + 1][c].wall = true;
+      }
+      if (inBounds(r - 1, c)) {
+        board[r - 1][c].wall = true;
+      }
+      if (inBounds(r - 2, c)) {
+        board[r - 2][c].wall = true;
+      }
+    }
+    updateCallback();
+  }
+
+  handleFound(cur, parentMap, delay) async {
+    pathFound = true;
+    List<Node> path = [cur];
+    while (cur != startNode) {
+      cur = parentMap[cur]!;
+      path.add(cur);
+      await Future.delayed(delay);
+      updateCallback();
+    }
+    Iterable list = path.reversed;
+    var idx = 1;
+    for (var cur in list) {
+      cur.path = true;
+      cur.step = idx;
+      await Future.delayed(delay);
+      updateCallback();
+      idx += 1;
     }
   }
 
@@ -60,18 +96,28 @@ class Board {
   }
 
   randomize() {
-    board[endNode.row][endNode.col].end = false;
-    int startR = sample(ROWS, 1)[0];
-    int startC = sample(COLS, 1)[0];
-    endId = '$startR,$startC';
-    board[startR][startC].end = true;
+    board[endNode.row][endNode.col].isEnd = false;
+    int r = sample(ROWS, 1)[0];
+    int c = sample(COLS, 1)[0];
+    endId = '$r,$c';
+    board[r][c].isEnd = true;
+    board[r][c].wall = false;
   }
 
   reset() {
-    for (var node in nodes) {
-      if (!node.end && !node.start) {
-        node.visited = false;
-        node.path = false;
+    for (int r = 0; r < ROWS; r++) {
+      for (int c = 0; c < COLS; c++) {
+        var node = board[r][c];
+        if (!node.isEnd && !node.start) {
+          node.visited = false;
+          node.path = false;
+          node.step = 1;
+        }
+        if (node.isEnd) {
+          node.visited = false;
+          node.path = false;
+          node.step = 1;
+        }
       }
     }
   }
@@ -92,27 +138,21 @@ class Board {
 
   searchBFS() async {
     Queue<Node> queue = Queue();
-    int distance = 0;
     var seen = <dynamic>{};
     Map<Node, Node> parentMap = {};
     var delay = const Duration(milliseconds: 5);
 
-    queue.add(board[startNode.row][startNode.col]);
+    queue.add(startNode);
     while (queue.isNotEmpty) {
       var nextLevel = Queue<Node>();
       while (queue.isNotEmpty) {
         Node cur = queue.removeFirst();
-        if (cur.end) {
-          while (cur != startNode) {
-            cur.path = true;
-            cur = parentMap[cur]!;
-            await Future.delayed(delay);
-            updateCallback();
-          }
+        if (cur.isEnd) {
+          handleFound(cur, parentMap, delay);
           return;
         }
         updateCallback();
-        if (!cur.start && !cur.end) {
+        if (!cur.start && !cur.isEnd) {
           cur.visited = true;
         }
         await Future.delayed(delay);
@@ -129,14 +169,14 @@ class Board {
           if (inBounds(nr, nc) && !seen.contains('$nr,$nc')) {
             seen.add('$nr,$nc');
             Node neighbor = board[nr][nc];
-            if (!neighbor.visited) {
+
+            if (!neighbor.visited && !neighbor.wall) {
               nextLevel.add(neighbor);
               parentMap[neighbor] = cur;
             }
           }
         }
       }
-      distance += 1;
       queue.addAll(nextLevel);
     }
   }
