@@ -12,8 +12,9 @@ class Game extends StatefulWidget {
 }
 
 class _GameState extends State<Game> {
-  Board board = Board();
+  late Board board;
   bool play = false;
+  int speed = 500;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -172,51 +173,107 @@ class _GameState extends State<Game> {
     );
   }
 
+  Expanded buildCol3() {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                board.speed = 500;
+                setState(() {
+                  speed = 500;
+                });
+              },
+              style: ButtonStyle(
+                  backgroundColor: speed == 500
+                      ? const MaterialStatePropertyAll(Colors.green)
+                      : null),
+              child: const Text('Fast'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                board.speed = 250;
+                setState(() {
+                  speed = 250;
+                });
+              },
+              style: ButtonStyle(
+                  foregroundColor: const MaterialStatePropertyAll(Colors.white),
+                  backgroundColor: speed == 250
+                      ? const MaterialStatePropertyAll(Colors.green)
+                      : null),
+              child: const Text('Faster'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                board.speed = 5;
+                setState(() {
+                  speed = 5;
+                });
+              },
+              style: ButtonStyle(
+                  foregroundColor: const MaterialStatePropertyAll(Colors.white),
+                  backgroundColor: speed == 5
+                      ? const MaterialStatePropertyAll(Colors.green)
+                      : null),
+              child: const Text('Fastest'),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Expanded buildCol4() {
+    return Expanded(
+      child: Column(
+        children: [
+          ElevatedButton(
+            style: const ButtonStyle(
+              foregroundColor: MaterialStatePropertyAll(Colors.white),
+              backgroundColor: MaterialStatePropertyAll(Colors.green),
+            ),
+            onPressed: () {
+              board.searchBFS();
+            },
+            child: const Text('Search'),
+          ),
+          const SizedBox(height: 10),
+          ElevatedButton(
+            style: const ButtonStyle(
+              foregroundColor: MaterialStatePropertyAll(Colors.white),
+              backgroundColor: MaterialStatePropertyAll(Colors.red),
+            ),
+            onPressed: () {
+              board.reset();
+              board.updateCallback();
+            },
+            child: const Text('Clear'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Row buildPanel() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         buildCol1(),
         buildCol2(),
-        const Expanded(
-          child: Column(
-            children: [Text('Col 3')],
-          ),
-        ),
-        Expanded(
-          child: Column(
-            children: [
-              ElevatedButton(
-                style: const ButtonStyle(
-                  foregroundColor: MaterialStatePropertyAll(Colors.white),
-                  backgroundColor: MaterialStatePropertyAll(Colors.green),
-                ),
-                onPressed: () {
-                  board.searchBFS();
-                },
-                child: const Text('Search'),
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                style: const ButtonStyle(
-                  foregroundColor: MaterialStatePropertyAll(Colors.white),
-                  backgroundColor: MaterialStatePropertyAll(Colors.red),
-                ),
-                onPressed: () {
-                  board.reset();
-                  board.updateCallback();
-                },
-                child: const Text('Clear'),
-              ),
-            ],
-          ),
-        ),
+        buildCol3(),
+        buildCol4(),
       ],
     );
   }
 
   @override
   void initState() {
+    board = Board();
     super.initState();
     board.updateCallback = () {
       if (!play) {
@@ -231,14 +288,7 @@ class _GameState extends State<Game> {
   _buildCell(r, c) {
     Node node = board.node(r, c);
 
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          node.toggle();
-        });
-      },
-      child: Cell(node: node),
-    );
+    return Cell(node: node);
   }
 
   _buildMatrix() {

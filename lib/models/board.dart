@@ -9,6 +9,7 @@ typedef UpdateCallback = void Function();
 
 class Board {
   int V = ROWS * COLS;
+  int speed = 1;
   List<Node> nodes = [];
   late String endId = END_NODE;
   late String startId = START_NODE;
@@ -122,63 +123,45 @@ class Board {
     }
   }
 
-  search() async {
-    // ignore: non_constant_identifier_names
-    // for (int r = 0; r < ROWS; r++) {
-    //   for (int c = 0; c < COLS; c++) {
-    //     Node cur = board[r][c];
-    //     int delay = r * COLS + c;
-    //     Future.delayed(Duration(milliseconds: delay * 100), () {
-    //       cur.visited = true;
-    //       updateCallback();
-    //     });
-    //   }
-    // }
-  }
-
   searchBFS() async {
     Queue<Node> queue = Queue();
     var seen = <dynamic>{};
     Map<Node, Node> parentMap = {};
-    var delay = const Duration(milliseconds: 5);
 
     queue.add(startNode);
     while (queue.isNotEmpty) {
-      var nextLevel = Queue<Node>();
-      while (queue.isNotEmpty) {
-        Node cur = queue.removeFirst();
-        if (cur.isEnd) {
-          handleFound(cur, parentMap, delay);
-          return;
-        }
+      Node cur = queue.removeFirst();
+      if (cur.isEnd) {
+        handleFound(cur, parentMap, const Duration(microseconds: 1));
+        return;
+      }
+      if (!cur.start && !cur.isEnd) {
+        cur.setVisited(true);
         updateCallback();
-        if (!cur.start && !cur.isEnd) {
-          // cur.visited = true;
-          cur.setVisited(true);
-        }
-        await Future.delayed(delay);
+        await Future.delayed(
+          const Duration(microseconds: 1),
+        );
+      }
 
-        int r = cur.row!;
-        int c = cur.col!;
-        List<List> neighbors = [
-          [r - 1, c],
-          [r + 1, c],
-          [r, c + 1],
-          [r, c - 1]
-        ];
-        for (var [nr, nc] in neighbors) {
-          if (inBounds(nr, nc) && !seen.contains('$nr,$nc')) {
-            seen.add('$nr,$nc');
-            Node neighbor = board[nr][nc];
+      int r = cur.row!;
+      int c = cur.col!;
+      List<List> neighbors = [
+        [r - 1, c],
+        [r + 1, c],
+        [r, c + 1],
+        [r, c - 1]
+      ];
+      for (var [nr, nc] in neighbors) {
+        if (inBounds(nr, nc) && !seen.contains('$nr,$nc')) {
+          seen.add('$nr,$nc');
+          Node neighbor = board[nr][nc];
 
-            if (!neighbor.visited && !neighbor.wall) {
-              nextLevel.add(neighbor);
-              parentMap[neighbor] = cur;
-            }
+          if (!neighbor.visited && !neighbor.wall) {
+            queue.add(neighbor);
+            parentMap[neighbor] = cur;
           }
         }
       }
-      queue.addAll(nextLevel);
     }
   }
 }
