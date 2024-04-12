@@ -31,8 +31,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  bool _stop = false;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,20 +40,9 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: [
-          Game(play: _stop),
+          Game(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _toggle,
-        tooltip: 'Play/Pause',
-        child: const Icon(Icons.add),
-      ),
     );
-  }
-
-  void _toggle() {
-    setState(() {
-      _stop = !_stop;
-    });
   }
 }

@@ -10,6 +10,8 @@ typedef UpdateCallback = void Function();
 class Board {
   int V = ROWS * COLS;
   List<Node> nodes = [];
+  late String endId = END_NODE;
+  late String startId = START_NODE;
   late UpdateCallback updateCallback;
 
   late List<List> board;
@@ -18,12 +20,12 @@ class Board {
   }
 
   get endNode {
-    var keys = END_NODE.split(',');
+    var keys = endId.split(',');
     return board[int.parse(keys[0])][int.parse(keys[1])];
   }
 
   get startNode {
-    var keys = START_NODE.split(',');
+    var keys = startId.split(',');
     return board[int.parse(keys[0])][int.parse(keys[1])];
   }
 
@@ -57,6 +59,14 @@ class Board {
     return board[r][c];
   }
 
+  randomize() {
+    board[endNode.row][endNode.col].end = false;
+    int startR = sample(ROWS, 1)[0];
+    int startC = sample(COLS, 1)[0];
+    endId = '$startR,$startC';
+    board[startR][startC].end = true;
+  }
+
   reset() {
     for (var node in nodes) {
       if (!node.end && !node.start) {
@@ -85,7 +95,7 @@ class Board {
     int distance = 0;
     var seen = <dynamic>{};
     Map<Node, Node> parentMap = {};
-    var delay = const Duration(milliseconds: 10);
+    var delay = const Duration(milliseconds: 5);
 
     queue.add(board[startNode.row][startNode.col]);
     while (queue.isNotEmpty) {

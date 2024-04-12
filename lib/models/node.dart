@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../constants.dart';
 
 class Node {
-  final int row;
-  final int col;
+  int row;
+  int col;
   final String id;
   bool inRoute = false;
   bool checked = false;
@@ -31,7 +31,7 @@ class Node {
       return Colors.red;
     }
     if (wall) {
-      return Colors.black;
+      return Colors.brown[700];
     }
     if (path) {
       return Colors.amber;

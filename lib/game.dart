@@ -4,8 +4,7 @@ import 'models/board.dart';
 import 'models/node.dart';
 
 class Game extends StatefulWidget {
-  bool play;
-  Game({super.key, required this.play});
+  const Game({super.key});
 
   @override
   State<Game> createState() => _GameState();
@@ -13,6 +12,7 @@ class Game extends StatefulWidget {
 
 class _GameState extends State<Game> {
   Board board = Board();
+  bool play = false;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -37,6 +37,13 @@ class _GameState extends State<Game> {
           },
           child: const Text('Reset'),
         ),
+        ElevatedButton(
+          onPressed: () {
+            board.randomize();
+            board.updateCallback();
+          },
+          child: const Text('Randomize'),
+        ),
       ],
     );
   }
@@ -45,12 +52,11 @@ class _GameState extends State<Game> {
   void initState() {
     super.initState();
     board.updateCallback = () {
-      if (!widget.play) {
+      if (!play) {
         setState(() {});
       }
     };
     board.generateWalls();
-    board.searchBFS();
   }
 
   setupCallback() {}
@@ -64,9 +70,6 @@ class _GameState extends State<Game> {
           node.toggle();
         });
       },
-      // onVerticalDragStart: (DragStartDetails el) {
-      //   print(el);
-      // },
       child: Container(
         margin: const EdgeInsets.all(1),
         width: 40,
