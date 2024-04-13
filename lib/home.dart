@@ -1,200 +1,132 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-
-import './models/graph.dart';
-
-enum ArrowDirection {
-  left,
-  right,
-  both,
-  none,
-}
+import 'package:graphview/GraphView.dart';
 
 class Home extends StatefulWidget {
-  final Graph graph;
-  const Home({super.key, required this.graph});
+  const Home({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
-}
-
-class _GraphPainter extends CustomPainter {
-  final Graph graph;
-  _GraphPainter(this.graph);
-
-  Offset calculateVertexPosition(int index) {
-    const double centerY = 150.0;
-    const double startingX = 100.0;
-    const double circleRadius = 50.0;
-    const double distanceBetweenVertices = 200.0;
-
-    double x = startingX + index * distanceBetweenVertices;
-
-    for (var i = 0; i < index; i++) {
-      double previousX = startingX + i * distanceBetweenVertices;
-      if ((x - previousX).abs() < 2 * circleRadius) {
-        x = previousX + 2 * circleRadius;
-      }
-    }
-
-    return Offset(x, centerY);
-  }
-
-  void drawEdge(Canvas canvas, Vertex vertex, Vertex neighbor, Paint paint,
-      ArrowDirection arrowDirection) {
-    paint.strokeWidth = 5;
-    paint.color = Colors.red;
-    const double arrowSize = 20;
-
-    canvas.drawLine(
-      Offset(vertex.x!, vertex.y!),
-      Offset(neighbor.x!, neighbor.y!),
-      paint,
-    );
-
-    // Draw arrow(s) if needed
-    switch (arrowDirection) {
-      case ArrowDirection.left:
-        _drawArrow(canvas, Offset(vertex.x!, vertex.y!),
-            Offset(neighbor.x!, neighbor.y!), arrowSize, 50, paint);
-        break;
-      case ArrowDirection.right:
-        _drawArrow(canvas, Offset(neighbor.x!, neighbor.y!),
-            Offset(vertex.x!, vertex.y!), arrowSize, 50, paint);
-        break;
-      case ArrowDirection.both:
-        _drawArrow(canvas, Offset(vertex.x!, vertex.y!),
-            Offset(neighbor.x!, neighbor.y!), arrowSize, 50, paint);
-        _drawArrow(canvas, Offset(neighbor.x!, neighbor.y!),
-            Offset(vertex.x!, vertex.y!), arrowSize, 50, paint);
-        break;
-      case ArrowDirection.none:
-        break;
-    }
-  }
-
-  void drawGrid(Size size, Canvas canvas, Paint paint) {
-    const double cellSize = 20.0;
-    for (double y = 0; y < size.height; y += cellSize) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-    for (double x = 0; x < size.width; x += cellSize) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-  }
-
-  void drawVertexes(Canvas canvas, Paint paint) {
-    const circleRadius = 25.0;
-    for (var i = 0; i < graph.vertices.length; i++) {
-      var vertex = graph.vertices[i];
-      Offset circleCenter = calculateVertexPosition(i);
-      vertex.x = circleCenter.dx;
-      vertex.y = circleCenter.dy;
-
-      canvas.drawCircle(circleCenter, circleRadius, paint);
-      TextSpan span = TextSpan(
-          text: vertex.id.toString(),
-          style: const TextStyle(color: Colors.black));
-      TextPainter tp = TextPainter(
-        text: span,
-        textAlign: TextAlign.center,
-        textDirection: TextDirection.ltr,
-      );
-      for (var neighbor in vertex.neighbors) {
-        drawEdge(canvas, vertex, neighbor, paint, ArrowDirection.left);
-      }
-      paint.color = Colors.grey;
-      tp.layout();
-      tp.paint(canvas, circleCenter - Offset(tp.width / 2, tp.height / 2));
-    }
-  }
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..strokeWidth = 1
-      ..color = Colors.grey[300]!;
-
-    drawGrid(size, canvas, paint);
-
-    drawVertexes(canvas, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-
-  void _drawArrow(Canvas canvas, Offset start, Offset end, double arrowSize,
-      double nodeRadius, Paint paint) {
-    final double angle = atan2(end.dy - start.dy, end.dx - start.dx);
-
-    final double startAdjustX = cos(angle) * nodeRadius;
-    final double startAdjustY = sin(angle) * nodeRadius;
-    final double endAdjustX = cos(angle) * nodeRadius;
-    final double endAdjustY = sin(angle) * nodeRadius;
-
-    final Offset startAdjusted =
-        Offset(start.dx + startAdjustX, start.dy + startAdjustY);
-    final Offset endAdjusted = Offset(end.dx - endAdjustX, end.dy - endAdjustY);
-
-    const double arrowAngle = pi / 6;
-    final double arrowPoint1Angle = angle + pi - arrowAngle;
-    final double arrowPoint2Angle = angle + pi + arrowAngle;
-
-    final Offset arrowPoint1 = Offset(
-        end.dx - arrowSize * cos(arrowPoint1Angle),
-        end.dy - arrowSize * sin(arrowPoint1Angle));
-    final Offset arrowPoint2 = Offset(
-        end.dx - arrowSize * cos(arrowPoint2Angle),
-        end.dy - arrowSize * sin(arrowPoint2Angle));
-    canvas.drawLine(startAdjusted, endAdjusted, paint);
-    canvas.drawLine(end, arrowPoint1, paint);
-    canvas.drawLine(end, arrowPoint2, paint);
-  }
+  _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
+  Random r = Random();
+  final Graph graph = Graph()..isTree = true;
+  BuchheimWalkerConfiguration builder = BuchheimWalkerConfiguration();
+
+  add() {
+    final node3 = Node.Id(r.nextInt(100));
+    var edge = graph.getNodeAtPosition(r.nextInt(graph.nodeCount()));
+    print(edge);
+    graph.addEdge(edge, node3);
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: double.infinity,
       width: double.infinity,
-      child: CustomPaint(
-        painter: _GraphPainter(widget.graph),
-      ),
+      child: InteractiveViewer(
+          constrained: false,
+          boundaryMargin: const EdgeInsets.all(100),
+          minScale: 0.01,
+          maxScale: 5.6,
+          child: GraphView(
+            graph: graph,
+            algorithm:
+                BuchheimWalkerAlgorithm(builder, TreeEdgeRenderer(builder)),
+            paint: Paint()
+              ..color = Colors.green
+              ..strokeWidth = 1
+              ..style = PaintingStyle.stroke,
+            builder: (Node node) {
+              var a = node.key?.value as int;
+              return rectangleWidget(a);
+            },
+          )),
     );
-  }
-
-  Offset calculateVertexPosition(int index) {
-    const double distanceBetweenVertices = 200.0;
-    const double startingX = 100.0;
-    const double centerY = 150.0;
-    const double circleRadius = 50.0;
-
-    double x = startingX + index * distanceBetweenVertices;
-
-    for (var i = 0; i < index; i++) {
-      double previousX = startingX + i * distanceBetweenVertices;
-      if ((x - previousX).abs() < 2 * circleRadius) {
-        x = previousX + 2 * circleRadius;
-      }
-    }
-
-    return Offset(x, centerY);
-  }
-
-  calculateVertexPositions() {
-    for (var i = 0; i < widget.graph.vertices.length; i++) {
-      var vertex = widget.graph.vertices[i];
-      Offset circleCenter = calculateVertexPosition(i);
-      vertex.x = circleCenter.dx;
-      vertex.y = circleCenter.dy;
-    }
   }
 
   @override
   void initState() {
-    super.initState();
-    calculateVertexPositions();
+    final node1 = Node.Id(1);
+    final node2 = Node.Id(2);
+    final node3 = Node.Id(3);
+    final node4 = Node.Id(4);
+    final node5 = Node.Id(5);
+    final node6 = Node.Id(6);
+
+    graph.addEdge(node1, node2);
+    graph.addEdge(node1, node3);
+    graph.addEdge(node4, node5);
+    graph.addEdge(node5, node6, paint: Paint());
+    builder
+      ..siblingSeparation = (50)
+      ..levelSeparation = (50)
+      ..subtreeSeparation = (50)
+      ..orientation = (BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM);
+  }
+
+  Widget rectangleWidget(int a) {
+    return Container(
+      height: 100,
+      width: 100,
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(50)),
+        color: Colors.red,
+      ),
+    );
+    return InkWell(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Node $a Clicked"),
+          duration: const Duration(seconds: 2, milliseconds: 500),
+        ));
+        // print('clicked');
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          boxShadow: const [
+            BoxShadow(color: Colors.grey, spreadRadius: 1),
+          ],
+        ),
+        child: Column(
+          children: [
+            Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(7),
+                  boxShadow: const [
+                    BoxShadow(color: Colors.green, spreadRadius: 1),
+                  ],
+                ),
+                child: Text('Node $a')),
+            const SizedBox(
+              height: 10,
+            ),
+            GestureDetector(
+              onTap: () {
+                add();
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  boxShadow: const [
+                    BoxShadow(color: Colors.grey, spreadRadius: 1),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.add,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

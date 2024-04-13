@@ -1,10 +1,23 @@
 import 'package:flutter/material.dart';
 
-import 'game.dart';
+import './models/graph.dart';
+import 'home.dart';
 
 void main() {
   runApp(const MyApp());
 }
+
+Graph simpleGraph = Graph(vertices: vertices, edges: [
+  Edge(vertices[0], vertices[1]),
+  Edge(vertices[2], vertices[3]),
+]);
+
+var vertices = [
+  Vertex('A'),
+  Vertex('B'),
+  Vertex('C'),
+  Vertex('D'),
+];
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -39,11 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: const Column(
-        children: [
-          Game(),
-        ],
-      ),
+      body: const Home(),
     );
   }
 }
