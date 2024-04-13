@@ -6,6 +6,16 @@ import '../constants.dart';
 import '../utils.dart';
 import 'node.dart';
 
+List<bool> clearWallChance = [
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  true
+];
 typedef UpdateCallback = void Function();
 
 class Board {
@@ -17,6 +27,7 @@ class Board {
   late UpdateCallback updateCallback;
   List stack = [];
   bool pathFound = false;
+  List<Future> futures = [];
 
   late List<List<Node>> board;
   Board() {
@@ -85,14 +96,13 @@ class Board {
   }
 
   void makeHoles() {
-    var chances = [false, false, false, false, false, false, false, true];
-    chances.shuffle();
+    clearWallChance.shuffle();
     for (int r = 0; r < ROWS; r++) {
       for (int c = 0; c < COLS; c++) {
         if (inBounds(r, c)) {
           Node node = board[r][c];
-          chances.shuffle();
-          bool random = chances.first;
+          clearWallChance.shuffle();
+          bool random = clearWallChance.first;
           if (random) {
             node.wall = false;
           }
@@ -102,6 +112,7 @@ class Board {
   }
 
   makeMaze() {
+    futures.clear();
     for (int r = 0; r < ROWS; r++) {
       for (int c = 0; c < COLS; c++) {
         if (inBounds(r, c)) {
@@ -112,6 +123,7 @@ class Board {
     }
     makeWalls();
     makeHoles();
+    resetEndNode();
     updateCallback();
   }
 
@@ -157,6 +169,7 @@ class Board {
   }
 
   randomize() {
+    futures.clear();
     board[endNode.row][endNode.col].isEnd = false;
     int r = sample(ROWS - 1, 1)[0];
     int c = sample(COLS - 1, 1)[0];
@@ -173,6 +186,9 @@ class Board {
   }
 
   reset() {
+    futures.clear();
+    // WIP: Remove old animations
+    // Animations continue still
     for (int r = 0; r < ROWS; r++) {
       for (int c = 0; c < COLS; c++) {
         var node = board[r][c];
@@ -188,6 +204,13 @@ class Board {
         }
       }
     }
+    resetEndNode();
+  }
+
+  resetEndNode() {
+    endNode.wall = false;
+    endNode.isEnd = true;
+    endNode.visited = false;
   }
 
   searchBFS() async {
@@ -203,12 +226,13 @@ class Board {
         return;
       }
       if (!cur.start && !cur.isEnd) {
-        cur.setVisited(true);
-        updateCallback();
-        await Future.delayed(
-          const Duration(microseconds: 1),
-        );
+        var delayedFuture = Future.delayed(const Duration(microseconds: 1), () {
+          cur.setVisited(true);
+          updateCallback();
+        });
+        futures.add(delayedFuture);
       }
+      await Future.wait(futures);
 
       int r = cur.row!;
       int c = cur.col!;
