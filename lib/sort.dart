@@ -32,11 +32,11 @@ class SortPage extends StatefulWidget {
 
 class _SortPageState extends State<SortPage>
     with SingleTickerProviderStateMixin {
-  int numsLength = 20;
+  int count = 20;
   late List<int> nums;
   bool finishedSort = false;
   late List<SortItem> sortItems = [];
-  SortOption sortType = SortOption.insertion;
+  SortOption sortType = SortOption.bubble;
 
   @override
   Widget build(BuildContext context) {
@@ -75,8 +75,7 @@ class _SortPageState extends State<SortPage>
             ],
           ),
         ),
-        SizedBox(
-          height: 950,
+        Expanded(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -119,39 +118,26 @@ class _SortPageState extends State<SortPage>
         children: [
           ElevatedButton(
             onPressed: () {
-              if (numsLength > 40) {
-                return;
-              }
-              setState(() {
-                numsLength += 5;
-              });
-              generateItems();
+              if (count > 40) return;
+              generateItems(count += 5);
             },
             child: const Text('Add Sort Items'),
           ),
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () {
-              if (numsLength < 10) {
-                return;
-              }
-              setState(() {
-                numsLength -= 5;
-              });
-              generateItems();
+              if (count < 10) return;
+              generateItems(count -= 5);
             },
             child: const Text('Remove Sort Items'),
           ),
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () {
-              if (numsLength > 40) {
-                return;
-              }
               setState(() {
                 finishedSort = false;
               });
-              generateItems();
+              generateItems(count);
             },
             child: const Text('Regenerate'),
           ),
@@ -182,8 +168,8 @@ class _SortPageState extends State<SortPage>
     );
   }
 
-  generateItems() {
-    nums = sample(numsLength, numsLength);
+  generateItems(count) {
+    nums = sample(count, count);
     nums.shuffle();
     sortItems = List.generate(
       nums.length,
@@ -200,10 +186,11 @@ class _SortPageState extends State<SortPage>
             value: item,
             position: index,
             label: item.toString(),
-            height: item.toDouble() * 20);
+            height: item.toDouble() * 15);
       },
     );
     setState(() {
+      count = count;
       nums = nums;
       sortItems = sortItems;
     });
@@ -212,7 +199,7 @@ class _SortPageState extends State<SortPage>
   @override
   void initState() {
     super.initState();
-    generateItems();
+    generateItems(count);
   }
 
   Future<void> _bubble(List<SortItem> items) async {
