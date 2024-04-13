@@ -33,7 +33,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
-  int currentPageIndex = 0;
+  int currentPageIndex = 1;
 
   @override
   Widget build(BuildContext context) {

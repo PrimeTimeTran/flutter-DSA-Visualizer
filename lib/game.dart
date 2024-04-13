@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 import 'models/board.dart';
 import 'models/node.dart';
 
+var greenButton = const ButtonStyle(
+    foregroundColor: MaterialStatePropertyAll(Colors.white),
+    backgroundColor: MaterialStatePropertyAll(Colors.green));
+
 class MatrixPage extends StatefulWidget {
   const MatrixPage({super.key});
 
@@ -186,9 +190,7 @@ class _MatrixPageState extends State<MatrixPage> {
                   speed = 500;
                 });
               },
-              style: const ButtonStyle(
-                  foregroundColor: MaterialStatePropertyAll(Colors.white),
-                  backgroundColor: MaterialStatePropertyAll(Colors.green)),
+              style: greenButton,
               child: const Text('Fast'),
             ),
             const SizedBox(height: 10),
@@ -199,9 +201,7 @@ class _MatrixPageState extends State<MatrixPage> {
                   speed = 250;
                 });
               },
-              style: const ButtonStyle(
-                  foregroundColor: MaterialStatePropertyAll(Colors.white),
-                  backgroundColor: MaterialStatePropertyAll(Colors.green)),
+              style: greenButton,
               child: const Text('Faster'),
             ),
             const SizedBox(height: 10),
@@ -212,9 +212,7 @@ class _MatrixPageState extends State<MatrixPage> {
                   speed = 5;
                 });
               },
-              style: const ButtonStyle(
-                  foregroundColor: MaterialStatePropertyAll(Colors.white),
-                  backgroundColor: MaterialStatePropertyAll(Colors.green)),
+              style: greenButton,
               child: const Text('Fastest'),
             )
           ],
@@ -228,10 +226,7 @@ class _MatrixPageState extends State<MatrixPage> {
       child: Column(
         children: [
           ElevatedButton(
-            style: const ButtonStyle(
-              foregroundColor: MaterialStatePropertyAll(Colors.white),
-              backgroundColor: MaterialStatePropertyAll(Colors.green),
-            ),
+            style: greenButton,
             onPressed: () {
               board.searchBFS();
             },
@@ -275,7 +270,7 @@ class _MatrixPageState extends State<MatrixPage> {
         setState(() {});
       }
     };
-    board.generateWalls();
+    board.makeMaze();
   }
 
   setupCallback() {}

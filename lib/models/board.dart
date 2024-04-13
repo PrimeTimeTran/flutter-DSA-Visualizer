@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:math';
 
 import '../constants.dart';
 import '../utils.dart';
@@ -16,7 +17,7 @@ class Board {
   late UpdateCallback updateCallback;
   bool pathFound = false;
 
-  late List<List> board;
+  late List<List<Node>> board;
   Board() {
     board = generateBoard();
   }
@@ -31,14 +32,15 @@ class Board {
     return board[int.parse(keys[0])][int.parse(keys[1])];
   }
 
-  List<List> generateBoard() {
-    List<List> board = [];
+  List<List<Node>> generateBoard() {
+    List<List<Node>> board = [];
     for (int r = 0; r < ROWS; r++) {
-      board.add([]);
+      List<Node> items = [];
+      board.add(items);
       for (int c = 0; c < COLS; c++) {
-        board[r].add([]);
         String rc = '$r,$c';
         Node cur = Node(id: rc, row: r, col: c);
+        board[r].add(cur);
         nodes.add(cur);
         board[r][c] = cur;
       }
@@ -47,24 +49,16 @@ class Board {
   }
 
   generateWalls() {
-    List rows = sample(ROWS, 5);
-    List cols = sample(COLS, 5);
-    var lists = zipLists(rows, cols);
-    for (var [r, c] in lists) {
-      board[r][c].wall = true;
-      if (inBounds(r + 2, c)) {
-        board[r + 2][c].wall = true;
-      }
-      if (inBounds(r + 1, c)) {
-        board[r + 1][c].wall = true;
-      }
-      if (inBounds(r - 1, c)) {
-        board[r - 1][c].wall = true;
-      }
-      if (inBounds(r - 2, c)) {
-        board[r - 2][c].wall = true;
+    for (int r = 0; r < ROWS; r++) {
+      for (int c = 0; c < COLS; c++) {
+        if (inBounds(r, c)) {
+          Node node = board[r][c];
+          node.wall = false;
+        }
       }
     }
+    updateCallback();
+    makeMaze();
     updateCallback();
   }
 
@@ -90,6 +84,28 @@ class Board {
 
   bool inBounds(int r, int c) {
     return r >= 0 && r < ROWS && c >= 0 && c < COLS;
+  }
+
+  makeMaze() {
+    for (int row = 0; row < ROWS; row++) {
+      for (int col = 0; col < COLS; col++) {
+        if (inBounds(row, col)) {
+          board[row][col].wall = false;
+        }
+      }
+    }
+    for (int row = 0; row < ROWS; row++) {
+      for (int col = 0; col < COLS; col++) {
+        if ((row % 2 != 0 && row != 0) && col % 2 != 0) {
+          board[row][col].wall = false;
+        } else {
+          board[row][col].wall = true;
+        }
+      }
+    }
+
+    _generatePassages();
+    updateCallback();
   }
 
   node(r, c) {
@@ -160,6 +176,39 @@ class Board {
             queue.add(neighbor);
             parentMap[neighbor] = cur;
           }
+        }
+      }
+    }
+  }
+
+  void _generatePassages() {
+    Random random = Random();
+    int startRow = random.nextInt(ROWS);
+    board[startRow][0].wall = false;
+
+    _visit(startRow, 0);
+  }
+
+  void _visit(int row, int col) {
+    var directions = [
+      [0, 1],
+      [0, -1],
+      [1, 0],
+      [-1, 0]
+    ]; // right, left, down, up
+
+    directions.shuffle();
+    for (var dir in directions) {
+      int newRow = row + dir[0] * 2;
+      int newCol = col + dir[1] * 2;
+
+      if (newRow >= 0 && newRow < ROWS && newCol >= 0 && newCol < COLS) {
+        if (board[newRow][newCol].wall) {
+          // Knock down the wall
+          board[newRow][newCol].wall = false;
+          board[row + dir[0]][col + dir[1]].wall = false;
+
+          _visit(newRow, newCol);
         }
       }
     }
