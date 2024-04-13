@@ -76,7 +76,7 @@ class _SortPageState extends State<SortPage>
           ),
         ),
         SizedBox(
-          height: 900,
+          height: 950,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -132,7 +132,7 @@ class _SortPageState extends State<SortPage>
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () {
-              if (numsLength > 40) {
+              if (numsLength < 10) {
                 return;
               }
               setState(() {
