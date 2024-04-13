@@ -38,7 +38,7 @@ class _SortPageState extends State<SortPage>
   late List<int> nums;
   bool finishedSort = false;
   late List<SortItem> sortItems = [];
-  SortOption sortType = SortOption.insertion;
+  SortOption sortType = SortOption.bubble;
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +91,6 @@ class _SortPageState extends State<SortPage>
         ),
         SizedBox(
           width: 125 + ((count / 5) * 125),
-          // width: getWidth(),
           height: 750,
           child: Stack(
             children: List.generate(
@@ -178,7 +177,7 @@ class _SortPageState extends State<SortPage>
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () {
-              if (count > 40) return;
+              if (count > 45) return;
               makeItems(count += 5);
             },
             child: const Text('Add Sort Items'),
@@ -231,29 +230,6 @@ class _SortPageState extends State<SortPage>
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
-  }
-
-  double getWidth() {
-    switch (count) {
-      case 45:
-        return 1150;
-      case 40:
-        return 1025;
-      case 35:
-        return 925;
-      case 30:
-        return 775;
-      case 25:
-        return 650;
-      case 20:
-        return 525;
-      case 15:
-        return 400;
-      case 10:
-        return 275;
-      default:
-        return 125;
-    }
   }
 
   @override
