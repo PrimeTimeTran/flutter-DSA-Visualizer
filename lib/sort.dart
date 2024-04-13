@@ -21,7 +21,7 @@ class SortItem {
   });
 }
 
-enum SortOptions { bubbleSort, selectionSort, insertionSort, mergeSort }
+enum SortOption { bubble, selection, insertion, merge }
 
 class SortPage extends StatefulWidget {
   const SortPage({super.key});
@@ -32,11 +32,12 @@ class SortPage extends StatefulWidget {
 
 class _SortPageState extends State<SortPage>
     with SingleTickerProviderStateMixin {
+  int numsLength = 20;
   late List<int> nums;
   bool finishedSort = false;
-  SortOptions sortType = SortOptions.bubbleSort;
-  int numsLength = 20;
   late List<SortItem> sortItems = [];
+  SortOption sortType = SortOption.bubble;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -46,82 +47,29 @@ class _SortPageState extends State<SortPage>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              buildSortItemOptions(),
+              buildSortPanel(),
               Expanded(
-                child: Container(
-                  child: Column(
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          if (numsLength > 40) {
-                            return;
-                          }
-                          setState(() {
-                            numsLength += 5;
-                          });
-                          generateItems();
-                        },
-                        child: const Text('Add Sort Items'),
-                      ),
-                      const SizedBox(height: 10),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (numsLength > 40) {
-                            return;
-                          }
-                          setState(() {
-                            numsLength -= 5;
-                          });
-                          generateItems();
-                        },
-                        child: const Text('Remove Sort Items'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  child: Column(
-                    children: [
-                      Text(sortTypeString()),
-                      const SizedBox(height: 10),
-                      _buildSortButton('Bubble', SortOptions.bubbleSort),
-                      const SizedBox(height: 10),
-                      _buildSortButton('Selection', SortOptions.selectionSort),
-                      const SizedBox(height: 10),
-                      _buildSortButton('Insertion', SortOptions.insertionSort),
-                      const SizedBox(height: 10),
-                      _buildSortButton('Merge', SortOptions.mergeSort),
-                      const SizedBox(height: 10),
-                    ],
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ElevatedButton(
-                            style: const ButtonStyle(
-                                backgroundColor:
-                                    MaterialStatePropertyAll(Colors.green)),
-                            onPressed: () {
-                              _bubbleSort(sortItems);
-                            },
-                            child: const Text(
-                              'Sort',
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () => _sort(sortType),
+                          style: const ButtonStyle(
+                              backgroundColor:
+                                  MaterialStatePropertyAll(Colors.green)),
+                          child: const Text(
+                            'Sort',
+                            style: TextStyle(
+                              color: Colors.white,
                             ),
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -144,20 +92,88 @@ class _SortPageState extends State<SortPage>
 
   Widget buildSortItem(index) {
     SortItem item = sortItems[index];
-    return AnimatedPositioned(
-      bottom: 0,
-      left: item.position * 50.0,
-      duration: const Duration(milliseconds: 500),
-      child: Container(
-        width: 20,
-        height: item.height,
-        margin: const EdgeInsets.all(5),
-        decoration: BoxDecoration(
-          color: item.color,
-          border:
-              item.sorting ? Border.all(color: Colors.black, width: 5) : null,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        AnimatedPositioned(
+          bottom: 0,
+          left: item.position * 50.0,
+          duration: const Duration(milliseconds: 500),
+          child: Container(
+            width: 20,
+            height: item.height,
+            margin: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              color: item.color,
+              border: item.sorting
+                  ? Border.all(color: Colors.black, width: 5)
+                  : null,
+            ),
+            child: Center(child: Text(item.label)),
+          ),
         ),
-        child: Center(child: Text(item.label)),
+        Text(item.value.toString()),
+        Text(nums[index].toString()),
+      ],
+    );
+  }
+
+  Expanded buildSortItemOptions() {
+    return Expanded(
+      child: Container(
+        child: Column(
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                if (numsLength > 40) {
+                  return;
+                }
+                setState(() {
+                  numsLength += 5;
+                });
+                generateItems();
+              },
+              child: const Text('Add Sort Items'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                if (numsLength > 40) {
+                  return;
+                }
+                setState(() {
+                  numsLength -= 5;
+                });
+                generateItems();
+              },
+              child: const Text('Remove Sort Items'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String buildSortLabel(type) {
+    return capitalize(type.toString().split('.')[1].split('Sort')[0]);
+  }
+
+  Expanded buildSortPanel() {
+    return Expanded(
+      child: Container(
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            _buildSortButton(SortOption.bubble),
+            const SizedBox(height: 10),
+            _buildSortButton(SortOption.selection),
+            const SizedBox(height: 10),
+            _buildSortButton(SortOption.insertion),
+            const SizedBox(height: 10),
+            _buildSortButton(SortOption.merge),
+            const SizedBox(height: 10),
+          ],
+        ),
       ),
     );
   }
@@ -206,11 +222,7 @@ class _SortPageState extends State<SortPage>
     generateItems();
   }
 
-  String sortTypeString() {
-    return capitalize(sortType.toString().split('.')[1].split('Sort')[0]);
-  }
-
-  Future<void> _bubbleSort(List<SortItem> items) async {
+  Future<void> _bubble(List<SortItem> items) async {
     int n = items.length;
     bool sorted = false;
     while (!sorted) {
@@ -240,33 +252,27 @@ class _SortPageState extends State<SortPage>
     setState(() {});
   }
 
-  _buildSortButton(type, option) {
+  _buildSortButton(SortOption option) {
     ButtonStyle? style;
     TextStyle? textStyle;
-    if (type == sortTypeString()) {
+    if (sortType == option) {
+      textStyle = const TextStyle(color: Colors.white);
       style = const ButtonStyle(
         backgroundColor: MaterialStatePropertyAll(
           Colors.green,
         ),
       );
     }
-    if (type == sortTypeString()) {
-      textStyle = const TextStyle(color: Colors.white);
-    }
-
     return ElevatedButton(
       style: style,
       onPressed: () {
-        setState(() {
-          sortType = option;
-        });
-        _sort(option);
+        setState(() => sortType = option);
       },
-      child: Text(type + ' Sort', style: textStyle),
+      child: Text('${buildSortLabel(option)} Sort', style: textStyle),
     );
   }
 
-  Future<void> _insertionSort(List<SortItem> items) async {
+  Future<void> _insertion(List<SortItem> items) async {
     int n = items.length;
 
     for (int i = 1; i < n; i++) {
@@ -328,7 +334,7 @@ class _SortPageState extends State<SortPage>
     return _merge(await _mergeSort(left), await _mergeSort(right));
   }
 
-  Future<void> _selectionSort(List<SortItem> items) async {
+  Future<void> _selection(List<SortItem> items) async {
     int n = items.length;
 
     for (int i = 0; i < n - 1; i++) {
@@ -359,16 +365,16 @@ class _SortPageState extends State<SortPage>
     setState(() {});
   }
 
-  _sort(SortOptions option) async {
+  _sort(SortOption option) async {
     switch (option) {
-      case SortOptions.bubbleSort:
-        await _bubbleSort(sortItems);
+      case SortOption.bubble:
+        await _bubble(sortItems);
         break;
-      case SortOptions.insertionSort:
-        await _selectionSort(sortItems);
+      case SortOption.insertion:
+        await _selection(sortItems);
         break;
-      case SortOptions.selectionSort:
-        await _insertionSort(sortItems);
+      case SortOption.selection:
+        await _insertion(sortItems);
         break;
       default:
     }
