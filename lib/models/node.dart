@@ -41,7 +41,7 @@ class Node extends ChangeNotifier {
       return Colors.red;
     }
     if (wall) {
-      return Colors.black87;
+      return Colors.brown[800];
     }
     if (path) {
       return Colors.yellow;

@@ -84,6 +84,23 @@ class Board {
     return r >= 0 && r < ROWS && c >= 0 && c < COLS;
   }
 
+  void makeHoles() {
+    var chances = [false, false, false, false, false, false, false, true];
+    chances.shuffle();
+    for (int r = 0; r < ROWS; r++) {
+      for (int c = 0; c < COLS; c++) {
+        if (inBounds(r, c)) {
+          Node node = board[r][c];
+          chances.shuffle();
+          bool random = chances.first;
+          if (random) {
+            node.wall = false;
+          }
+        }
+      }
+    }
+  }
+
   makeMaze() {
     for (int r = 0; r < ROWS; r++) {
       for (int c = 0; c < COLS; c++) {
@@ -94,12 +111,13 @@ class Board {
       }
     }
     makeWalls();
+    makeHoles();
     updateCallback();
   }
 
   void makeWalls() {
     reset();
-    stack.add(Node(id: '10,5', row: 10, col: 0));
+    stack.add(Node(id: '15,5', row: 10, col: 0));
     while (stack.isNotEmpty) {
       Node next = stack.removeLast();
       if (validNextNode(next)) {
@@ -140,8 +158,8 @@ class Board {
 
   randomize() {
     board[endNode.row][endNode.col].isEnd = false;
-    int r = sample(ROWS, 1)[0];
-    int c = sample(COLS, 1)[0];
+    int r = sample(ROWS - 1, 1)[0];
+    int c = sample(COLS - 1, 1)[0];
     endId = '$r,$c';
     board[r][c].isEnd = true;
     board[r][c].wall = false;

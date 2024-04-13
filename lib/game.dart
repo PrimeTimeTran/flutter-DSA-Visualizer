@@ -126,7 +126,7 @@ class _MatrixPageState extends State<MatrixPage> {
                     child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Container(height: 30, width: 30, color: Colors.blue[900]),
+                    Container(height: 30, width: 30, color: Colors.blue[800]),
                     const SizedBox(width: 5),
                     Cell(
                       node: Node(row: 0, col: 0, id: '10,20', isVisited: true),
