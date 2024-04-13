@@ -31,15 +31,68 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
+  int currentPageIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: NavigationBar(
+        onDestinationSelected: (int index) {
+          setState(() {
+            currentPageIndex = index;
+          });
+        },
+        indicatorColor: Colors.amber,
+        selectedIndex: currentPageIndex,
+        destinations: const <Widget>[
+          NavigationDestination(
+            selectedIcon: Icon(Icons.home),
+            icon: Icon(Icons.home_outlined),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Badge(child: Icon(Icons.notifications_sharp)),
+            label: 'Notifications',
+          ),
+          NavigationDestination(
+            icon: Badge(
+              label: Text('2'),
+              child: Icon(Icons.messenger_sharp),
+            ),
+            label: 'Messages',
+          ),
+        ],
+      ),
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: const Text('DSA Visualizer'),
       ),
-      body: const SortPage(),
+      body: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          NavigationRail(
+            destinations: const [
+              NavigationRailDestination(
+                icon: Icon(Icons.home_filled),
+                label: Text('Sorting'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.home_filled),
+                label: Text('Matrix'),
+              )
+            ],
+            selectedIndex: currentPageIndex,
+          ),
+          const VerticalDivider(thickness: 1, width: 1),
+          const Expanded(
+              child: SingleChildScrollView(
+            child: Column(
+              children: [SortPage()],
+            ),
+          ))
+        ],
+      ),
     );
   }
 }

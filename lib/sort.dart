@@ -35,6 +35,7 @@ class SortPage extends StatefulWidget {
 class _SortPageState extends State<SortPage>
     with SingleTickerProviderStateMixin {
   int count = 25;
+  int iterations = 0;
   late List<int> nums;
   bool finishedSort = false;
   late List<SortItem> sortItems = [];
@@ -43,10 +44,9 @@ class _SortPageState extends State<SortPage>
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25.0),
+          padding: const EdgeInsets.all(8.0),
           child: Row(
             children: [
               buildSortItemOptions(),
@@ -55,7 +55,6 @@ class _SortPageState extends State<SortPage>
                 child: Column(
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ElevatedButton(
                           onPressed: () => _sort(sortType),
@@ -69,18 +68,6 @@ class _SortPageState extends State<SortPage>
                             ),
                           ),
                         ),
-                        ElevatedButton(
-                          onPressed: testt,
-                          style: const ButtonStyle(
-                              backgroundColor:
-                                  MaterialStatePropertyAll(Colors.green)),
-                          child: const Text(
-                            'Test',
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                        )
                       ],
                     ),
                   ],
@@ -90,13 +77,16 @@ class _SortPageState extends State<SortPage>
           ),
         ),
         SizedBox(
+          height: ((count / 5) * 80),
           width: 125 + ((count / 5) * 125),
-          height: 750,
           child: Stack(
-            children: List.generate(
-              sortItems.length,
-              buildSortItem,
-            ),
+            children: [
+              buildInfoPanel(),
+              ...List.generate(
+                sortItems.length,
+                buildSortItem,
+              )
+            ],
           ),
         ),
       ],
@@ -119,7 +109,24 @@ class _SortPageState extends State<SortPage>
       onPressed: () {
         setState(() => sortType = option);
       },
-      child: Text('${buildSortLabel(option)} Sort', style: textStyle),
+      child: Text(buildSortLabel(option), style: textStyle),
+    );
+  }
+
+  Column buildInfoPanel() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Text('# Items: $count'),
+          ],
+        ),
+        Row(
+          children: [
+            Text('# Comparisons: $iterations'),
+          ],
+        ),
+      ],
     );
   }
 
@@ -150,50 +157,33 @@ class _SortPageState extends State<SortPage>
         ],
       ),
     );
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Container(
-          width: 20,
-          height: item.height,
-          margin: const EdgeInsets.all(5),
-          decoration: BoxDecoration(
-            color: finishedSort ? Colors.lightGreen : item.color,
-            border: border,
-          ),
-          child: Center(child: Text(item.label)),
-        ),
-        Text(item.value.toString()),
-        Text(nums[index].toString()),
-      ],
-    );
   }
 
   Expanded buildSortItemOptions() {
     return Expanded(
-      child: Column(
+      child: Row(
         children: [
-          Text(count.toString()),
-          const SizedBox(height: 10),
+          const SizedBox(width: 5),
           ElevatedButton(
             onPressed: () {
               if (count > 45) return;
               makeItems(count += 5);
             },
-            child: const Text('Add Sort Items'),
+            child: const Text('Add Items'),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(width: 5),
           ElevatedButton(
             onPressed: () {
               if (count < 10) return;
               makeItems(count -= 5);
             },
-            child: const Text('Remove Sort Items'),
+            child: const Text('Remove Items'),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(width: 5),
           ElevatedButton(
             onPressed: () {
               setState(() {
+                iterations = 0;
                 finishedSort = false;
               });
               makeItems(count);
@@ -211,17 +201,17 @@ class _SortPageState extends State<SortPage>
 
   Expanded buildSortPanel() {
     return Expanded(
-      child: Column(
+      child: Row(
         children: [
-          const SizedBox(height: 10),
+          const SizedBox(width: 5),
           buildButton(SortOption.bubble),
-          const SizedBox(height: 10),
+          const SizedBox(width: 5),
           buildButton(SortOption.selection),
-          const SizedBox(height: 10),
+          const SizedBox(width: 5),
           buildButton(SortOption.insertion),
-          const SizedBox(height: 10),
+          const SizedBox(width: 5),
           buildButton(SortOption.merge),
-          const SizedBox(height: 10),
+          const SizedBox(width: 5),
         ],
       ),
     );
@@ -264,14 +254,6 @@ class _SortPageState extends State<SortPage>
     setState(() {
       count = count;
       nums = nums;
-      sortItems = sortItems;
-    });
-  }
-
-  testt() {
-    sortItems[0].width = 1000;
-    sortItems[sortItems.length - 1].width = 0;
-    setState(() {
       sortItems = sortItems;
     });
   }
@@ -365,10 +347,14 @@ class _SortPageState extends State<SortPage>
             left.sorting = false;
           });
         }
-        setState(() {});
+        setState(() {
+          iterations = iterations + 1;
+        });
       }
     }
-    setState(() {});
+    setState(() {
+      iterations = iterations + 1;
+    });
   }
 
   Future<void> _sortInsertion(List<SortItem> items) async {
@@ -415,6 +401,9 @@ class _SortPageState extends State<SortPage>
         if (items[min].value > items[j].value) {
           min = j;
         }
+        setState(() {
+          iterations = iterations + 1;
+        });
       }
       // Sort works beautifully but the animation doesn't.
       // if (min != i) {
@@ -453,7 +442,9 @@ class _SortPageState extends State<SortPage>
         });
       }
 
-      setState(() {});
+      setState(() {
+        iterations = iterations + 1;
+      });
       await Future.delayed(const Duration(milliseconds: 100), () {
         items[i].sorting = false;
         items[min].sorting = false;
