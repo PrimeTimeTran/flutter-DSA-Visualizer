@@ -1,5 +1,10 @@
 import 'dart:math';
 
+String capitalize(String input) {
+  if (input.isEmpty) return input;
+  return input.substring(0, 1).toUpperCase() + input.substring(1);
+}
+
 List<int> sample(int limit, int sampleSize) {
   var random = Random();
   var sampledNumbers = <int>{};
