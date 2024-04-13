@@ -166,22 +166,6 @@ class _SortPageState extends State<SortPage>
       duration: const Duration(milliseconds: 500),
     );
     _bubbleSort(sortItems);
-
-    // _controller = AnimationController(
-    //   duration: const Duration(seconds: 1),
-    //   vsync: this,
-    // );
-    // _offsetAnimation = List.generate(
-    //   sortItems.length,
-    //   (index) => Tween<Offset>(
-    //     begin: const Offset(0.0, 0.0),
-    //     end: Offset(index == 0 ? 1 : -1, 0.0),
-    //   ).animate(_controller),
-    // );
-
-    // Future.delayed(const Duration(seconds: 1), () {
-    //   _bubbleSort(sortItems);
-    // });
   }
 
   void _animate() {
@@ -196,28 +180,27 @@ class _SortPageState extends State<SortPage>
     while (!sorted) {
       sorted = true;
       for (int i = 0; i < n - 1; i++) {
-        if (items[i].value > items[i + 1].value) {
-          await _swap(items, i, i + 1);
-          sorted = false;
-          setState(() {});
+        for (var item in items) {
+          item.sorting = false;
         }
+        SortItem left = items[i];
+        SortItem right = items[i + 1];
+        left.sorting = true;
+        right.sorting = true;
+        setState(() {});
+        bool shouldSwap = right.value < left.value;
+        if (shouldSwap) {
+          sorted = false;
+          items[i] = right;
+          items[i + 1] = left;
+          setState(() {});
+          await Future.delayed(const Duration(milliseconds: 500));
+        }
+        left.sorting = false;
+        right.sorting = false;
+        setState(() {});
       }
-      n--;
     }
-  }
-
-  Future<void> _swap(List<SortItem> items, int index1, int index2) async {
-    SortItem temp = items[index1];
-    items[index1] = items[index2];
-    items[index2] = temp;
-    int tempPosition = items[index1].position;
-    items[index1].position = items[index2].position;
-    items[index2].position = tempPosition;
-    items[index1].sorting = true;
-    items[index2].sorting = true;
-    await Future.delayed(const Duration(milliseconds: 500));
-    items[index1].sorting = false;
-    items[index2].sorting = false;
     setState(() {});
   }
 }
