@@ -151,7 +151,7 @@ class _MatrixPageState extends State<MatrixPage> {
           children: [
             ElevatedButton(
               onPressed: () {
-                board.generateWalls();
+                board.makeMaze();
               },
               child: const Text('Generate Walls'),
             ),

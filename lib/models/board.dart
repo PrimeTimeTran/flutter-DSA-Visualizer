@@ -15,6 +15,7 @@ class Board {
   late String endId = END_NODE;
   late String startId = START_NODE;
   late UpdateCallback updateCallback;
+  List stack = [];
   bool pathFound = false;
 
   late List<List<Node>> board;
@@ -48,18 +49,15 @@ class Board {
     return board;
   }
 
-  generateWalls() {
-    for (int r = 0; r < ROWS; r++) {
-      for (int c = 0; c < COLS; c++) {
-        if (inBounds(r, c)) {
-          Node node = board[r][c];
-          node.wall = false;
-        }
-      }
-    }
-    updateCallback();
-    makeMaze();
-    updateCallback();
+  String getRawMaze() {
+    return board.map((row) => row.toString()).join('\n');
+  }
+
+  String getSymbolicMaze() {
+    return board
+        .map((row) =>
+            row.map((col) => col.wall ? col.wall = true : " ").join("  "))
+        .join("\n");
   }
 
   handleFound(cur, parentMap, delay) async {
@@ -87,29 +85,57 @@ class Board {
   }
 
   makeMaze() {
-    for (int row = 0; row < ROWS; row++) {
-      for (int col = 0; col < COLS; col++) {
-        if (inBounds(row, col)) {
-          board[row][col].wall = false;
+    for (int r = 0; r < ROWS; r++) {
+      for (int c = 0; c < COLS; c++) {
+        if (inBounds(r, c)) {
+          Node node = board[r][c];
+          node.wall = false;
         }
       }
     }
-    for (int row = 0; row < ROWS; row++) {
-      for (int col = 0; col < COLS; col++) {
-        if ((row % 2 != 0 && row != 0) && col % 2 != 0) {
-          board[row][col].wall = false;
-        } else {
-          board[row][col].wall = true;
-        }
-      }
-    }
-
-    _generatePassages();
+    makeWalls();
     updateCallback();
+  }
+
+  void makeWalls() {
+    reset();
+    stack.add(Node(id: '10,5', row: 10, col: 0));
+    while (stack.isNotEmpty) {
+      Node next = stack.removeLast();
+      if (validNextNode(next)) {
+        board[next.row!][next.col!].wall = true;
+        List<Node> neighbors = [];
+        if (next.row! - 1 >= 0) {
+          var leftNeighbor = board[next.row! - 1][next.col!];
+          neighbors.add(leftNeighbor);
+        }
+        if (next.row! + 1 < ROWS) {
+          var right = board[next.row! + 1][next.col!];
+          neighbors.add(right);
+        }
+        if (next.col! - 1 >= 0) {
+          var top = board[next.row!][next.col! - 1];
+          neighbors.add(top);
+        }
+        if (next.col! + 1 < COLS) {
+          var bot = board[next.row!][next.col! + 1];
+          neighbors.add(bot);
+        }
+        randomlyAddNodesToStack(neighbors);
+      }
+    }
   }
 
   node(r, c) {
     return board[r][c];
+  }
+
+  bool pointNotCorner(Node node, int x, int y) {
+    return (x == node.row! || y == node.col!);
+  }
+
+  bool pointNotNode(Node node, int x, int y) {
+    return !(x == node.row! && y == node.col!);
   }
 
   randomize() {
@@ -119,6 +145,13 @@ class Board {
     endId = '$r,$c';
     board[r][c].isEnd = true;
     board[r][c].wall = false;
+  }
+
+  void randomlyAddNodesToStack(List<Node> nodes) {
+    while (nodes.isNotEmpty) {
+      int targetIndex = Random().nextInt(nodes.length);
+      stack.add(nodes.removeAt(targetIndex));
+    }
   }
 
   reset() {
@@ -181,36 +214,19 @@ class Board {
     }
   }
 
-  void _generatePassages() {
-    Random random = Random();
-    int startRow = random.nextInt(ROWS);
-    board[startRow][0].wall = false;
-
-    _visit(startRow, 0);
-  }
-
-  void _visit(int row, int col) {
-    var directions = [
-      [0, 1],
-      [0, -1],
-      [1, 0],
-      [-1, 0]
-    ]; // right, left, down, up
-
-    directions.shuffle();
-    for (var dir in directions) {
-      int newRow = row + dir[0] * 2;
-      int newCol = col + dir[1] * 2;
-
-      if (newRow >= 0 && newRow < ROWS && newCol >= 0 && newCol < COLS) {
-        if (board[newRow][newCol].wall) {
-          // Knock down the wall
-          board[newRow][newCol].wall = false;
-          board[row + dir[0]][col + dir[1]].wall = false;
-
-          _visit(newRow, newCol);
+  bool validNextNode(Node node) {
+    int numNeighboringOnes = 0;
+    for (int r = node.row! - 1; r < node.row! + 2; r++) {
+      for (int c = node.col! - 1; c < node.col! + 2; c++) {
+        if (inBounds(r, c) && board[r][c].wall) {
+          numNeighboringOnes++;
         }
       }
     }
+    bool random = Random().nextBool();
+    if (random) {
+      numNeighboringOnes += 1;
+    }
+    return (numNeighboringOnes < 3) && board[node.row!][node.col!] != 1;
   }
 }
