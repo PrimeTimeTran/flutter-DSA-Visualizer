@@ -7,13 +7,15 @@ String capitalize(String input) {
 
 List<int> sample(int limit, int sampleSize) {
   var random = Random();
-  var sampledNumbers = <int>{};
-  while (sampledNumbers.length < sampleSize) {
-    var randomNumber = random.nextInt(limit + 1);
-    sampledNumbers.add(randomNumber);
+  var sample = <int>{};
+  while (sample.length < sampleSize) {
+    var randomNumber = random.nextInt(limit) + 1;
+    if (randomNumber != 0) {
+      sample.add(randomNumber);
+    }
   }
 
-  return sampledNumbers.toList();
+  return sample.toList();
 }
 
 List<List<T>> zipLists<T>(List<T> list1, List<T> list2) {

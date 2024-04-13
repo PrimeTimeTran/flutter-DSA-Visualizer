@@ -36,7 +36,7 @@ class _SortPageState extends State<SortPage>
   late List<int> nums;
   bool finishedSort = false;
   late List<SortItem> sortItems = [];
-  SortOption sortType = SortOption.bubble;
+  SortOption sortType = SortOption.insertion;
 
   @override
   Widget build(BuildContext context) {
@@ -92,25 +92,20 @@ class _SortPageState extends State<SortPage>
 
   Widget buildSortItem(index) {
     SortItem item = sortItems[index];
+    Border? border =
+        item.sorting ? Border.all(color: Colors.black, width: 2) : null;
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        AnimatedPositioned(
-          bottom: 0,
-          left: item.position * 50.0,
-          duration: const Duration(milliseconds: 500),
-          child: Container(
-            width: 20,
-            height: item.height,
-            margin: const EdgeInsets.all(5),
-            decoration: BoxDecoration(
-              color: item.color,
-              border: item.sorting
-                  ? Border.all(color: Colors.black, width: 5)
-                  : null,
-            ),
-            child: Center(child: Text(item.label)),
+        Container(
+          width: 20,
+          height: item.height,
+          margin: const EdgeInsets.all(5),
+          decoration: BoxDecoration(
+            color: finishedSort ? Colors.lightGreen : item.color,
+            border: border,
           ),
+          child: Center(child: Text(item.label)),
         ),
         Text(item.value.toString()),
         Text(nums[index].toString()),
@@ -120,36 +115,47 @@ class _SortPageState extends State<SortPage>
 
   Expanded buildSortItemOptions() {
     return Expanded(
-      child: Container(
-        child: Column(
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                if (numsLength > 40) {
-                  return;
-                }
-                setState(() {
-                  numsLength += 5;
-                });
-                generateItems();
-              },
-              child: const Text('Add Sort Items'),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                if (numsLength > 40) {
-                  return;
-                }
-                setState(() {
-                  numsLength -= 5;
-                });
-                generateItems();
-              },
-              child: const Text('Remove Sort Items'),
-            ),
-          ],
-        ),
+      child: Column(
+        children: [
+          ElevatedButton(
+            onPressed: () {
+              if (numsLength > 40) {
+                return;
+              }
+              setState(() {
+                numsLength += 5;
+              });
+              generateItems();
+            },
+            child: const Text('Add Sort Items'),
+          ),
+          const SizedBox(height: 10),
+          ElevatedButton(
+            onPressed: () {
+              if (numsLength > 40) {
+                return;
+              }
+              setState(() {
+                numsLength -= 5;
+              });
+              generateItems();
+            },
+            child: const Text('Remove Sort Items'),
+          ),
+          const SizedBox(height: 10),
+          ElevatedButton(
+            onPressed: () {
+              if (numsLength > 40) {
+                return;
+              }
+              setState(() {
+                finishedSort = false;
+              });
+              generateItems();
+            },
+            child: const Text('Regenerate'),
+          ),
+        ],
       ),
     );
   }
@@ -160,26 +166,24 @@ class _SortPageState extends State<SortPage>
 
   Expanded buildSortPanel() {
     return Expanded(
-      child: Container(
-        child: Column(
-          children: [
-            const SizedBox(height: 10),
-            _buildSortButton(SortOption.bubble),
-            const SizedBox(height: 10),
-            _buildSortButton(SortOption.selection),
-            const SizedBox(height: 10),
-            _buildSortButton(SortOption.insertion),
-            const SizedBox(height: 10),
-            _buildSortButton(SortOption.merge),
-            const SizedBox(height: 10),
-          ],
-        ),
+      child: Column(
+        children: [
+          const SizedBox(height: 10),
+          _buildSortButton(SortOption.bubble),
+          const SizedBox(height: 10),
+          _buildSortButton(SortOption.selection),
+          const SizedBox(height: 10),
+          _buildSortButton(SortOption.insertion),
+          const SizedBox(height: 10),
+          _buildSortButton(SortOption.merge),
+          const SizedBox(height: 10),
+        ],
       ),
     );
   }
 
   generateItems() {
-    nums = generateRandomNumbers();
+    nums = sample(numsLength, numsLength);
     nums.shuffle();
     sortItems = List.generate(
       nums.length,
@@ -203,17 +207,6 @@ class _SortPageState extends State<SortPage>
       nums = nums;
       sortItems = sortItems;
     });
-  }
-
-  List<int> generateRandomNumbers() {
-    Random random = Random();
-    List<int> numbers = [];
-
-    for (int i = 0; i < numsLength; i++) {
-      numbers.add(random.nextInt(numsLength + 1));
-    }
-    numbers.shuffle();
-    return numbers;
   }
 
   @override
@@ -276,20 +269,14 @@ class _SortPageState extends State<SortPage>
     int n = items.length;
 
     for (int i = 1; i < n; i++) {
-      SortItem key = items[i];
-      int j = i - 1;
-
-      while (j >= 0 && items[j].value > key.value) {
-        items[j + 1] = items[j];
-        j = j - 1;
+      SortItem item = items[i];
+      while (i > 0 && items[i - 1].value > item.value) {
+        items[i] = items[i - 1];
+        items[i - 1] = item;
+        i -= 1;
         setState(() {});
         await Future.delayed(const Duration(milliseconds: 500));
       }
-
-      items[j + 1] = key;
-
-      setState(() {});
-      await Future.delayed(const Duration(milliseconds: 500));
     }
 
     setState(() {});
@@ -335,34 +322,28 @@ class _SortPageState extends State<SortPage>
   }
 
   Future<void> _selection(List<SortItem> items) async {
-    int n = items.length;
-
-    for (int i = 0; i < n - 1; i++) {
-      int minIndex = i;
-      for (int j = i + 1; j < n; j++) {
-        items[j].sorting = true;
-        setState(() {});
-        await Future.delayed(const Duration(milliseconds: 500));
-
-        if (items[j].value < items[minIndex].value) {
-          minIndex = j;
+    int limit = items.length;
+    for (int i = 0; i < limit; i++) {
+      int min = i;
+      for (int j = i + 1; j < limit; j++) {
+        if (items[min].value > items[j].value) {
+          min = j;
         }
-
-        items[j].sorting = false;
-        setState(() {});
+      }
+      if (min != i) {
+        var tmp = items[i];
+        items[i] = items[min];
+        items[min] = tmp;
+        items[i].sorting = true;
+        items[min].sorting = true;
       }
 
-      if (minIndex != i) {
-        SortItem temp = items[minIndex];
-        items[minIndex] = items[i];
-        items[i] = temp;
-
-        setState(() {});
-        await Future.delayed(const Duration(milliseconds: 500));
-      }
+      setState(() {});
+      await Future.delayed(const Duration(milliseconds: 500), () {
+        items[i].sorting = false;
+        items[min].sorting = false;
+      });
     }
-
-    setState(() {});
   }
 
   _sort(SortOption option) async {
@@ -370,10 +351,10 @@ class _SortPageState extends State<SortPage>
       case SortOption.bubble:
         await _bubble(sortItems);
         break;
-      case SortOption.insertion:
+      case SortOption.selection:
         await _selection(sortItems);
         break;
-      case SortOption.selection:
+      case SortOption.insertion:
         await _insertion(sortItems);
         break;
       default:
