@@ -53,7 +53,7 @@ class _CellState extends State<Cell> with SingleTickerProviderStateMixin {
       vsync: this,
     );
     animation = ColorTween(
-      begin: Colors.grey,
+      begin: Colors.orange,
       end: widget.node.path ? widget.node.color : Colors.blue[900],
     ).animate(_controller);
     widget.node.addListener(_onNodeColorChange);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'game.dart';
 import 'sort.dart';
 
 void main() {
@@ -37,33 +38,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (int index) {
-          setState(() {
-            currentPageIndex = index;
-          });
-        },
-        indicatorColor: Colors.amber,
-        selectedIndex: currentPageIndex,
-        destinations: const <Widget>[
-          NavigationDestination(
-            selectedIcon: Icon(Icons.home),
-            icon: Icon(Icons.home_outlined),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Badge(child: Icon(Icons.notifications_sharp)),
-            label: 'Notifications',
-          ),
-          NavigationDestination(
-            icon: Badge(
-              label: Text('2'),
-              child: Icon(Icons.messenger_sharp),
-            ),
-            label: 'Messages',
-          ),
-        ],
-      ),
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('DSA Visualizer'),
@@ -74,21 +48,31 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           NavigationRail(
             destinations: const [
               NavigationRailDestination(
-                icon: Icon(Icons.home_filled),
+                icon: Icon(Icons.sort),
                 label: Text('Sorting'),
               ),
               NavigationRailDestination(
-                icon: Icon(Icons.home_filled),
+                icon: Icon(Icons.grid_on),
                 label: Text('Matrix'),
               )
             ],
             selectedIndex: currentPageIndex,
+            onDestinationSelected: (int index) {
+              setState(() {
+                currentPageIndex = index;
+              });
+            },
           ),
           const VerticalDivider(thickness: 1, width: 1),
-          const Expanded(
+          Expanded(
               child: SingleChildScrollView(
             child: Column(
-              children: [SortPage()],
+              children: [
+                [
+                  const SortPage(),
+                  const MatrixPage(),
+                ][currentPageIndex]
+              ],
             ),
           ))
         ],

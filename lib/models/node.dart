@@ -63,7 +63,7 @@ class Node extends ChangeNotifier {
   void setVisited(bool value) {
     if (visited != value) {
       visited = value;
-      notifyListeners(); // Notify listeners when visited changes
+      notifyListeners();
     }
   }
 

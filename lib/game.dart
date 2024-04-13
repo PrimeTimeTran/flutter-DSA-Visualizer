@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'models/board.dart';
 import 'models/node.dart';
 
-class Game extends StatefulWidget {
-  const Game({super.key});
+class MatrixPage extends StatefulWidget {
+  const MatrixPage({super.key});
 
   @override
-  State<Game> createState() => _GameState();
+  State<MatrixPage> createState() => _MatrixPageState();
 }
 
-class _GameState extends State<Game> {
+class _MatrixPageState extends State<MatrixPage> {
   late Board board;
   bool play = false;
   int speed = 500;
@@ -186,10 +186,9 @@ class _GameState extends State<Game> {
                   speed = 500;
                 });
               },
-              style: ButtonStyle(
-                  backgroundColor: speed == 500
-                      ? const MaterialStatePropertyAll(Colors.green)
-                      : null),
+              style: const ButtonStyle(
+                  foregroundColor: MaterialStatePropertyAll(Colors.white),
+                  backgroundColor: MaterialStatePropertyAll(Colors.green)),
               child: const Text('Fast'),
             ),
             const SizedBox(height: 10),
@@ -200,11 +199,9 @@ class _GameState extends State<Game> {
                   speed = 250;
                 });
               },
-              style: ButtonStyle(
-                  foregroundColor: const MaterialStatePropertyAll(Colors.white),
-                  backgroundColor: speed == 250
-                      ? const MaterialStatePropertyAll(Colors.green)
-                      : null),
+              style: const ButtonStyle(
+                  foregroundColor: MaterialStatePropertyAll(Colors.white),
+                  backgroundColor: MaterialStatePropertyAll(Colors.green)),
               child: const Text('Faster'),
             ),
             const SizedBox(height: 10),
@@ -215,11 +212,9 @@ class _GameState extends State<Game> {
                   speed = 5;
                 });
               },
-              style: ButtonStyle(
-                  foregroundColor: const MaterialStatePropertyAll(Colors.white),
-                  backgroundColor: speed == 5
-                      ? const MaterialStatePropertyAll(Colors.green)
-                      : null),
+              style: const ButtonStyle(
+                  foregroundColor: MaterialStatePropertyAll(Colors.white),
+                  backgroundColor: MaterialStatePropertyAll(Colors.green)),
               child: const Text('Fastest'),
             )
           ],
