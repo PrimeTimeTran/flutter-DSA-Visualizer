@@ -16,7 +16,6 @@ class MatrixPage extends StatefulWidget {
 }
 
 class _MatrixPageState extends State<MatrixPage> {
-  // int speed = 500;
   late Board board;
   bool play = false;
   @override
@@ -177,10 +176,8 @@ class _MatrixPageState extends State<MatrixPage> {
           children: [
             ElevatedButton(
               onPressed: () {
-                // board.speed = 500;
-                // setState(() {
-                //   speed = 500;
-                // });
+                board.speed = 250;
+                setState(() {});
               },
               style: greenButton,
               child: const Text('Fast'),
@@ -188,10 +185,8 @@ class _MatrixPageState extends State<MatrixPage> {
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
-                // board.speed = 250;
-                // setState(() {
-                //   speed = 250;
-                // });
+                board.speed = 100;
+                setState(() {});
               },
               style: greenButton,
               child: const Text('Faster'),
@@ -199,10 +194,8 @@ class _MatrixPageState extends State<MatrixPage> {
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
-                // board.speed = 5;
-                // setState(() {
-                //   speed = 5;
-                // });
+                board.speed = 50;
+                setState(() {});
               },
               style: greenButton,
               child: const Text('Fastest'),
