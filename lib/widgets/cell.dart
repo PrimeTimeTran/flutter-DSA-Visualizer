@@ -52,7 +52,6 @@ class _CellState extends State<Cell> with SingleTickerProviderStateMixin {
             widget.node.path
                 ? '${widget.node.layer == 0 ? '' : widget.node.layer}'
                 : '',
-            style: TextStyle(color: widget.node.path ? Colors.white : null),
           ),
         ),
       ),
