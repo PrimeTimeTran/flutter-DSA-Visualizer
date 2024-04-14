@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'models/board.dart';
 import 'models/node.dart';
+import 'toasts.dart';
 
 var greenButton = const ButtonStyle(
     foregroundColor: MaterialStatePropertyAll(Colors.white),
@@ -18,8 +19,10 @@ class MatrixPage extends StatefulWidget {
 class _MatrixPageState extends State<MatrixPage> {
   late Board board;
   bool play = false;
+  late Toaster toaster;
   @override
   Widget build(BuildContext context) {
+    toaster = Toaster(context);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -151,6 +154,7 @@ class _MatrixPageState extends State<MatrixPage> {
             ElevatedButton(
               onPressed: () {
                 board.makeMaze();
+                toaster.displayInfoMotionToast('New maze created.');
               },
               child: const Text('New Maze'),
             ),
@@ -158,9 +162,10 @@ class _MatrixPageState extends State<MatrixPage> {
             ElevatedButton(
               onPressed: () {
                 board.randomize();
+                toaster.displayInfoMotionToast('New goal success.');
                 board.updateCallback();
               },
-              child: const Text('Move End Goal'),
+              child: const Text('Move Goal Cell'),
             )
           ],
         ),
@@ -177,6 +182,7 @@ class _MatrixPageState extends State<MatrixPage> {
             ElevatedButton(
               onPressed: () {
                 board.speed = 300;
+                toaster.displayInfoMotionToast('Speed now 300 microseconds.');
                 setState(() {});
               },
               style: greenButton,
@@ -186,6 +192,7 @@ class _MatrixPageState extends State<MatrixPage> {
             ElevatedButton(
               onPressed: () {
                 board.speed = 150;
+                toaster.displayInfoMotionToast('Speed now 150 microseconds.');
                 setState(() {});
               },
               style: greenButton,
@@ -195,6 +202,7 @@ class _MatrixPageState extends State<MatrixPage> {
             ElevatedButton(
               onPressed: () {
                 board.speed = 50;
+                toaster.displayInfoMotionToast('Speed now 50 microseconds.');
                 setState(() {});
               },
               style: greenButton,
@@ -225,7 +233,7 @@ class _MatrixPageState extends State<MatrixPage> {
             ),
             onPressed: () {
               board.reset();
-              board.updateCallback();
+              toaster.displayInfoMotionToast('New Maze');
             },
             child: const Text('Clear'),
           ),

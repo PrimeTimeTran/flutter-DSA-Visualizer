@@ -202,7 +202,6 @@ class Board {
         node.wall = false;
         node.visited = false;
         node.path = false;
-        // node.step = 1;
       }
     }
     resetEndNode();

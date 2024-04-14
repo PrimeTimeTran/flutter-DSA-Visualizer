@@ -34,9 +34,12 @@ class _CellState extends State<Cell> with SingleTickerProviderStateMixin {
     color = widget.node.path ? widget.node.color : color;
     return GestureDetector(
       onTap: () {
-        setState(() {
-          widget.node.toggle();
-        });
+        widget.node.toggle();
+        setState(() {});
+      },
+      onDoubleTap: () {
+        widget.node.visited = !widget.node.visited;
+        setState(() {});
       },
       child: AnimatedContainer(
         width: 30,

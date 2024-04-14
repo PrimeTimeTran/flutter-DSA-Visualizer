@@ -68,6 +68,6 @@ class Node extends ChangeNotifier {
   }
 
   toggle() {
-    visited = !visited;
+    wall = !wall;
   }
 }
