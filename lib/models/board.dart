@@ -19,7 +19,7 @@ List<bool> clearWallChance = [
 typedef UpdateCallback = void Function();
 
 class Board {
-  int speed = 100;
+  int speed = 150;
   List stack = [];
   List<Node> nodes = [];
   List<Future> futures = [];
