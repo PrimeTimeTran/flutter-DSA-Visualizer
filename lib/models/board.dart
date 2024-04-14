@@ -19,15 +19,13 @@ List<bool> clearWallChance = [
 typedef UpdateCallback = void Function();
 
 class Board {
-  int V = ROWS * COLS;
-  int speed = 1;
+  // int speed = 1;
+  List stack = [];
   List<Node> nodes = [];
+  List<Future> futures = [];
   late String endId = END_NODE;
   late String startId = START_NODE;
   late UpdateCallback updateCallback;
-  List stack = [];
-  bool pathFound = false;
-  List<Future> futures = [];
 
   late List<List<Node>> board;
   Board() {
@@ -45,10 +43,9 @@ class Board {
   }
 
   Future<void> calculateLayers() async {
+    Set seen = <String>{};
     Queue<Node> queue = Queue();
-    Map<Node, Node> parentMap = {};
     queue.add(startNode);
-    var seen = <String>{};
     seen.add(startNode.id);
     int layerIdx = 0;
 
@@ -56,23 +53,15 @@ class Board {
       int layerSize = queue.length;
       for (int i = 0; i < layerSize; i++) {
         Node cur = queue.removeFirst();
-        int r = cur.row!;
-        int c = cur.col!;
         cur.layer = layerIdx;
 
-        List<List<int>> neighbors = [
-          [r - 1, c],
-          [r + 1, c],
-          [r, c + 1],
-          [r, c - 1]
-        ];
+        List<List<dynamic>> neighbors = getNeighbors(cur);
         for (var [nr, nc] in neighbors) {
           if (inBounds(nr, nc)) {
             Node neighbor = board[nr][nc];
             if (!seen.contains(neighbor.id) && !neighbor.wall) {
               seen.add(neighbor.id);
               queue.add(neighbor);
-              parentMap[neighbor] = cur;
             }
           }
         }
@@ -97,19 +86,19 @@ class Board {
     return board;
   }
 
-  String getRawMaze() {
-    return board.map((row) => row.toString()).join('\n');
-  }
-
-  String getSymbolicMaze() {
-    return board
-        .map((row) =>
-            row.map((col) => col.wall ? col.wall = true : " ").join("  "))
-        .join("\n");
+  List<List<dynamic>> getNeighbors(Node cur) {
+    int r = cur.row!;
+    int c = cur.col!;
+    List<List> neighbors = [
+      [r - 1, c],
+      [r + 1, c],
+      [r, c + 1],
+      [r, c - 1]
+    ];
+    return neighbors;
   }
 
   handleFound(cur, parentMap, delay) async {
-    pathFound = true;
     List<Node> path = [cur];
     while (cur != startNode) {
       cur = parentMap[cur]!;
@@ -117,14 +106,10 @@ class Board {
       await Future.delayed(delay);
       updateCallback();
     }
-    Iterable list = path.reversed;
-    var idx = 1;
-    for (var cur in list) {
+    for (var cur in path.reversed) {
       cur.path = true;
-      cur.step = idx;
       await Future.delayed(delay);
       updateCallback();
-      idx += 1;
     }
   }
 
@@ -150,15 +135,6 @@ class Board {
 
   makeMaze() {
     reset();
-    futures.clear();
-    for (int r = 0; r < ROWS; r++) {
-      for (int c = 0; c < COLS; c++) {
-        if (inBounds(r, c)) {
-          Node node = board[r][c];
-          node.wall = false;
-        }
-      }
-    }
     makeWalls();
     makeHoles();
     resetEndNode();
@@ -198,14 +174,6 @@ class Board {
     return board[r][c];
   }
 
-  bool pointNotCorner(Node node, int x, int y) {
-    return (x == node.row! || y == node.col!);
-  }
-
-  bool pointNotNode(Node node, int x, int y) {
-    return !(x == node.row! && y == node.col!);
-  }
-
   randomize() {
     futures.clear();
     board[endNode.row][endNode.col].isEnd = false;
@@ -231,16 +199,10 @@ class Board {
       for (int c = 0; c < COLS; c++) {
         var node = board[r][c];
         node.layer = 0;
-        if (!node.isEnd && !node.start) {
-          node.visited = false;
-          node.path = false;
-          node.step = 1;
-        }
-        if (node.isEnd) {
-          node.visited = false;
-          node.path = false;
-          node.step = 1;
-        }
+        node.wall = false;
+        node.visited = false;
+        node.path = false;
+        // node.step = 1;
       }
     }
     resetEndNode();
@@ -276,14 +238,7 @@ class Board {
       }
       await Future.wait(futures);
 
-      int r = cur.row!;
-      int c = cur.col!;
-      List<List> neighbors = [
-        [r - 1, c],
-        [r + 1, c],
-        [r, c + 1],
-        [r, c - 1]
-      ];
+      List<List<dynamic>> neighbors = getNeighbors(cur);
       for (var [nr, nc] in neighbors) {
         if (inBounds(nr, nc) && !seen.contains('$nr,$nc')) {
           seen.add('$nr,$nc');

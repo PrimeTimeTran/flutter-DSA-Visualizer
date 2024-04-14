@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import '../models/node.dart';
 
 Color makeColor(int delta) {
-  Color originalColor = Colors.blue[500]!;
+  Color baseColor = Colors.blue[500]!;
 
-  int red = originalColor.red - delta * 2;
-  int green = originalColor.green - delta * 2;
-  int blue = originalColor.blue - delta * 2;
+  int red = baseColor.red - delta * 2;
+  int blue = baseColor.blue - delta * 2;
+  int green = baseColor.green - delta * 2;
 
   red = red.clamp(0, 255);
-  green = green.clamp(0, 255);
   blue = blue.clamp(0, 255);
+  green = green.clamp(0, 255);
 
-  return Color.fromARGB(originalColor.alpha, red, green, blue);
+  return Color.fromARGB(baseColor.alpha, red, green, blue);
 }
 
 class Cell extends StatefulWidget {
@@ -49,9 +49,8 @@ class _CellState extends State<Cell> with SingleTickerProviderStateMixin {
         duration: const Duration(milliseconds: 500),
         child: Center(
           child: Text(
-            // widget.node.layer.toString(),
             widget.node.path
-                ? '${widget.node.step == 1 ? '' : widget.node.step - 1}'
+                ? '${widget.node.layer == 0 ? '' : widget.node.layer}'
                 : '',
             style: TextStyle(color: widget.node.path ? Colors.white : null),
           ),

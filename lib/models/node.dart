@@ -5,7 +5,7 @@ import '../constants.dart';
 class Node extends ChangeNotifier {
   int? row;
   int? col;
-  int step = 1;
+  // int step = 1;
   late int layer = 0;
   final String id;
   bool inRoute = false;
