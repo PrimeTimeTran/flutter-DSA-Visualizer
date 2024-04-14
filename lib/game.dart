@@ -16,9 +16,9 @@ class MatrixPage extends StatefulWidget {
 }
 
 class _MatrixPageState extends State<MatrixPage> {
+  int speed = 500;
   late Board board;
   bool play = false;
-  int speed = 500;
   @override
   Widget build(BuildContext context) {
     return Padding(

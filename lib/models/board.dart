@@ -44,6 +44,43 @@ class Board {
     return board[int.parse(keys[0])][int.parse(keys[1])];
   }
 
+  Future<void> calculateLayers() async {
+    Queue<Node> queue = Queue();
+    Map<Node, Node> parentMap = {};
+    queue.add(startNode);
+    var seen = <String>{};
+    seen.add(startNode.id);
+    int layerIdx = 0;
+
+    while (queue.isNotEmpty) {
+      int layerSize = queue.length;
+      for (int i = 0; i < layerSize; i++) {
+        Node cur = queue.removeFirst();
+        int r = cur.row!;
+        int c = cur.col!;
+        cur.layer = layerIdx;
+
+        List<List<int>> neighbors = [
+          [r - 1, c],
+          [r + 1, c],
+          [r, c + 1],
+          [r, c - 1]
+        ];
+        for (var [nr, nc] in neighbors) {
+          if (inBounds(nr, nc)) {
+            Node neighbor = board[nr][nc];
+            if (!seen.contains(neighbor.id) && !neighbor.wall) {
+              seen.add(neighbor.id);
+              queue.add(neighbor);
+              parentMap[neighbor] = cur;
+            }
+          }
+        }
+      }
+      layerIdx += 1;
+    }
+  }
+
   List<List<Node>> generateBoard() {
     List<List<Node>> board = [];
     for (int r = 0; r < ROWS; r++) {
@@ -112,6 +149,7 @@ class Board {
   }
 
   makeMaze() {
+    reset();
     futures.clear();
     for (int r = 0; r < ROWS; r++) {
       for (int c = 0; c < COLS; c++) {
@@ -124,11 +162,11 @@ class Board {
     makeWalls();
     makeHoles();
     resetEndNode();
+    calculateLayers();
     updateCallback();
   }
 
   void makeWalls() {
-    reset();
     stack.add(Node(id: '15,5', row: 10, col: 0));
     while (stack.isNotEmpty) {
       Node next = stack.removeLast();
@@ -192,6 +230,7 @@ class Board {
     for (int r = 0; r < ROWS; r++) {
       for (int c = 0; c < COLS; c++) {
         var node = board[r][c];
+        node.layer = 0;
         if (!node.isEnd && !node.start) {
           node.visited = false;
           node.path = false;
@@ -220,12 +259,15 @@ class Board {
 
     queue.add(startNode);
     while (queue.isNotEmpty) {
+      updateCallback();
       Node cur = queue.removeFirst();
       if (cur.isEnd) {
         handleFound(cur, parentMap, const Duration(microseconds: 1));
         return;
       }
       if (!cur.start && !cur.isEnd) {
+        // cur.setVisited(true);
+        // updateCallback();
         var delayedFuture = Future.delayed(const Duration(microseconds: 1), () {
           cur.setVisited(true);
           updateCallback();
