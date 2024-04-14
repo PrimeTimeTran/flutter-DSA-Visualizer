@@ -1,6 +1,7 @@
 import 'package:f_dsa/widgets/cell.dart';
 import 'package:flutter/material.dart';
 
+import './widgets/modals.dart';
 import 'models/board.dart';
 import 'models/node.dart';
 import 'toasts.dart';
@@ -16,10 +17,13 @@ class MatrixPage extends StatefulWidget {
   State<MatrixPage> createState() => _MatrixPageState();
 }
 
+enum Speeds { fast, faster, fastest }
+
 class _MatrixPageState extends State<MatrixPage> {
   late Board board;
   bool play = false;
   late Toaster toaster;
+  Speeds speedView = Speeds.fast;
   @override
   Widget build(BuildContext context) {
     toaster = Toaster(context);
@@ -179,35 +183,38 @@ class _MatrixPageState extends State<MatrixPage> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            ElevatedButton(
-              onPressed: () {
-                board.speed = 300;
-                toaster.displayInfoMotionToast('Speed now 300 microseconds.');
+            SegmentedButton<Speeds>(
+              segments: const <ButtonSegment<Speeds>>[
+                ButtonSegment<Speeds>(
+                    value: Speeds.fast,
+                    label: Text('Fast'),
+                    icon: Icon(Icons.one_k)),
+                ButtonSegment<Speeds>(
+                    value: Speeds.faster,
+                    label: Text('Faster'),
+                    icon: Icon(Icons.two_k)),
+                ButtonSegment<Speeds>(
+                    value: Speeds.fastest,
+                    label: Text('Fastest'),
+                    icon: Icon(Icons.three_k)),
+              ],
+              selected: <Speeds>{speedView},
+              onSelectionChanged: (Set<Speeds> newSelection) {
+                int speed;
+                if (newSelection.first == Speeds.fast) {
+                  speed = 300;
+                } else if (newSelection.first == Speeds.faster) {
+                  speed = 150;
+                } else {
+                  speed = 50;
+                }
+                speedView = newSelection.first;
+                board.speed = speed;
+                toaster
+                    .displayInfoMotionToast('Speed now $speed microseconds.');
                 setState(() {});
               },
-              style: greenButton,
-              child: const Text('Fast'),
             ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                board.speed = 150;
-                toaster.displayInfoMotionToast('Speed now 150 microseconds.');
-                setState(() {});
-              },
-              style: greenButton,
-              child: const Text('Faster'),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                board.speed = 50;
-                toaster.displayInfoMotionToast('Speed now 50 microseconds.');
-                setState(() {});
-              },
-              style: greenButton,
-              child: const Text('Fastest'),
-            )
           ],
         ),
       ),
@@ -216,28 +223,53 @@ class _MatrixPageState extends State<MatrixPage> {
 
   Expanded buildCol4() {
     return Expanded(
-      child: Column(
-        children: [
-          ElevatedButton(
-            style: greenButton,
-            onPressed: () {
-              board.searchBFS();
-            },
-            child: const Text('Search'),
-          ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-            style: const ButtonStyle(
-              foregroundColor: MaterialStatePropertyAll(Colors.white),
-              backgroundColor: MaterialStatePropertyAll(Colors.red),
+      child: Padding(
+        padding: const EdgeInsets.only(right: 60),
+        child: Column(
+          children: [
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: greenButton,
+                onPressed: () {
+                  board.searchBFS();
+                },
+                child: const Text('Search'),
+              ),
             ),
-            onPressed: () {
-              board.reset();
-              toaster.displayInfoMotionToast('New Maze');
-            },
-            child: const Text('Clear'),
-          ),
-        ],
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    style: const ButtonStyle(
+                        foregroundColor: MaterialStatePropertyAll(Colors.white),
+                        backgroundColor: MaterialStatePropertyAll(
+                            Color.fromARGB(255, 158, 193, 254))),
+                    onPressed: () {
+                      dialogBuilder(context, 'Breadth First Search',
+                          'The algorithm is limited by the number of rows & cols \nwhere rows are M and cols are N O(M * N).');
+                    },
+                    child: const Text('Big O'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                IconButton(
+                  icon: const Icon(Icons.clear),
+                  style: const ButtonStyle(
+                    foregroundColor: MaterialStatePropertyAll(Colors.white),
+                    backgroundColor: MaterialStatePropertyAll(Colors.redAccent),
+                  ),
+                  onPressed: () {
+                    board.reset();
+                    toaster.displayInfoMotionToast('Path cleared');
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
