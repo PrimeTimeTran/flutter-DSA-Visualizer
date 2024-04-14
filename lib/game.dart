@@ -153,15 +153,7 @@ class _MatrixPageState extends State<MatrixPage> {
               onPressed: () {
                 board.makeMaze();
               },
-              child: const Text('Generate Walls'),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                board.reset();
-                board.updateCallback();
-              },
-              child: const Text('Reset'),
+              child: const Text('New Maze'),
             ),
             const SizedBox(height: 10),
             ElevatedButton(
@@ -169,7 +161,7 @@ class _MatrixPageState extends State<MatrixPage> {
                 board.randomize();
                 board.updateCallback();
               },
-              child: const Text('Randomize'),
+              child: const Text('Move End Goal'),
             )
           ],
         ),
