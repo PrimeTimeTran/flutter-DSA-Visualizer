@@ -224,13 +224,14 @@ class Board {
       updateCallback();
       Node cur = queue.removeFirst();
       if (cur.isEnd) {
-        handleFound(cur, parentMap, const Duration(microseconds: 1));
+        handleFound(cur, parentMap, const Duration(milliseconds: 100));
         return;
       }
       if (!cur.start && !cur.isEnd) {
         // cur.setVisited(true);
         // updateCallback();
-        var delayedFuture = Future.delayed(const Duration(microseconds: 1), () {
+        var delayedFuture =
+            Future.delayed(const Duration(milliseconds: 100), () {
           cur.setVisited(true);
           updateCallback();
         });
