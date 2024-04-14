@@ -19,7 +19,7 @@ List<bool> clearWallChance = [
 typedef UpdateCallback = void Function();
 
 class Board {
-  int speed = 500;
+  int speed = 100;
   List stack = [];
   List<Node> nodes = [];
   List<Future> futures = [];
@@ -224,14 +224,13 @@ class Board {
       updateCallback();
       Node cur = queue.removeFirst();
       if (cur.isEnd) {
-        handleFound(cur, parentMap, const Duration(microseconds: 100));
+        handleFound(cur, parentMap, Duration(microseconds: speed));
         return;
       }
       if (!cur.start && !cur.isEnd) {
         // cur.setVisited(true);
         // updateCallback();
-        var delayedFuture =
-            Future.delayed(const Duration(microseconds: 100), () {
+        var delayedFuture = Future.delayed(Duration(microseconds: speed), () {
           cur.setVisited(true);
           updateCallback();
         });

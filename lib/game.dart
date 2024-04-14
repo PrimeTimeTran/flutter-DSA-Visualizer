@@ -176,7 +176,7 @@ class _MatrixPageState extends State<MatrixPage> {
           children: [
             ElevatedButton(
               onPressed: () {
-                board.speed = 250;
+                board.speed = 100;
                 setState(() {});
               },
               style: greenButton,
@@ -185,7 +185,7 @@ class _MatrixPageState extends State<MatrixPage> {
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
-                board.speed = 100;
+                board.speed = 50;
                 setState(() {});
               },
               style: greenButton,
@@ -194,7 +194,7 @@ class _MatrixPageState extends State<MatrixPage> {
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
-                board.speed = 50;
+                board.speed = 25;
                 setState(() {});
               },
               style: greenButton,
